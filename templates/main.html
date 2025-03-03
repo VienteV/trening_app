@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь активности</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            color: #24292e;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #586069;
+            margin-bottom: 20px;
+        }
+        .calendar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .day {
+            width: 12px;
+            height: 12px;
+            background-color: #ebedf0;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .day:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        .day[data-level="1"] {
+            background-color: #9be9a8;
+        }
+        .day[data-level="2"] {
+            background-color: #40c463;
+        }
+        .day[data-level="3"] {
+            background-color: #30a14e;
+        }
+        .day[data-level="4"] {
+            background-color: #216e39;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #24292e;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Календарь активности
+</h1>
+        <h2>Октябрь 2023</h2>
+        <div class="calendar" id="calendar">
+            <!-- Дни будут добавлены с помощью JavaScript -->
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ebedf0;"></div>
+                <span>Меньше</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9be9a8;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #40c463;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #30a14e;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #216e39;"></div>
+                <span>Больше</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Пример данных активности
+        const activityData = JSON.parse('{{ trenings | safe }}');
+
+        const calendar = document.getElementById('calendar');
+        const tooltip = document.getElementById('tooltip');
+
+        // Генерация календаря
+        for (let i = 0; i < 365; i++) {
+            const day = document.createElement('div');
+            day.classList.add('day');
+            const date = new Date();
+            date.setDate(date.getDate() - 365 + i);
+            const dateString = date.toISOString().split('T')[0];
+            const level = activityData[dateString] || 0;
+            day.setAttribute('data-level', level);
+
+            // Добавление тултипа
+            day.addEventListener('mouseover', (e) => {
+                tooltip.style.display = 'block';
+                tooltip.textContent = `${dateString}: Уровень активности ${level}`;
+                tooltip.style.left = `${e.pageX + 10}px`;
+                tooltip.style.top = `${e.pageY + 10}px`;
+            });
+            day.addEventListener('mouseout', () => {
+                tooltip.style.display = 'none';
+            });
+
+            calendar.appendChild(day);
+        }
+    </script>
+</body>
+</html>
