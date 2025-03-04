@@ -64,7 +64,6 @@ def main():
     trenings_dict = {}
     for i in  trenings:
         trenings_dict[i] = trenings_dict.get(i, 0) + 1
-    trenings_dict = tuple({'date': i, "value": trenings_dict[i]} for i in trenings_dict)
 
     return render_template('main.html', trenings=json.dumps(trenings_dict ))
 
