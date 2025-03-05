@@ -119,36 +119,68 @@
 
     <div class="tooltip" id="tooltip"></div>
 
-    <script>
-        // Пример данных активности
-        const activityData = JSON.parse('{{ trenings | safe }}');
+<script>
+    // Пример данных активности
+    const activityData = JSON.parse('{{ trenings | safe }}');
 
-        const calendar = document.getElementById('calendar');
-        const tooltip = document.getElementById('tooltip');
+    const calendar = document.getElementById('calendar');
+    const tooltip = document.getElementById('tooltip');
 
-        // Генерация календаря
-        for (let i = 0; i < 365; i++) {
-            const day = document.createElement('div');
-            day.classList.add('day');
-            const date = new Date();
-            date.setDate(date.getDate() - 365 + i);
-            const dateString = date.toISOString().split('T')[0];
-            const level = activityData[dateString] || 0;
-            day.setAttribute('data-level', level);
-
-            // Добавление тултипа
-            day.addEventListener('mouseover', (e) => {
-                tooltip.style.display = 'block';
-                tooltip.textContent = `${dateString}: Уровень активности ${level}`;
-                tooltip.style.left = `${e.pageX + 10}px`;
-                tooltip.style.top = `${e.pageY + 10}px`;
-            });
-            day.addEventListener('mouseout', () => {
-                tooltip.style.display = 'none';
-            });
-
-            calendar.appendChild(day);
+    // Генерация календаря на 3 месяца (90 дней)
+    for (let i = 0; i < 90; i++) {
+        // Создаем новую строку (неделю) каждые 7 дней
+        if (i % 7 === 0) {
+            const weekRow = document.createElement('div');
+            weekRow.style.display = 'flex';
+            weekRow.style.width = '100%';
+            calendar.appendChild(weekRow);
         }
-    </script>
+
+        const day = document.createElement('a'); // Используем <a> для создания ссылки
+        day.classList.add('day');
+        const date = new Date();
+        date.setDate(date.getDate() - 90 + i);
+        const dateString = date.toISOString().split('T')[0];
+        const level = activityData[dateString] || 0;
+        day.setAttribute('data-level', level);
+
+        // Добавляем ссылку на день
+        day.href = `#${dateString}`; // Замените на нужный вам URL для просмотра тренировок
+        day.addEventListener('click', (e) => {
+            e.preventDefault(); // Отменяем стандартное поведение ссылки
+            // Здесь можно добавить логику для просмотра тренировок
+            console.log(`Переход к тренировкам за ${dateString}`);
+        });
+
+        // Стилизация ячеек
+        day.style.width = '14%'; // 7 дней в строке, поэтому примерно 14% ширины на каждый день
+        day.style.height = '50px'; // Высота ячейки
+        day.style.margin = '2px';
+        day.style.display = 'flex';
+        day.style.alignItems = 'center';
+        day.style.justifyContent = 'center';
+        day.style.border = '1px solid #ccc';
+        day.style.textDecoration = 'none'; // Убираем подчеркивание у ссылки
+        day.style.color = 'inherit'; // Наследуем цвет текста
+
+        // Цвет фона в зависимости от уровня активности
+        day.style.backgroundColor = `rgba(0, 128, 0, ${level / 10})`; // Пример градации цвета
+
+        // Добавление тултипа
+        day.addEventListener('mouseover', (e) => {
+            tooltip.style.display = 'block';
+            tooltip.textContent = `${dateString}: Уровень активности ${level}`;
+            tooltip.style.left = `${e.pageX + 10}px`;
+            tooltip.style.top = `${e.pageY + 10}px`;
+        });
+        day.addEventListener('mouseout', () => {
+            tooltip.style.display = 'none';
+        });
+
+        // Добавляем день в текущую строку (неделю)
+        const currentWeekRow = calendar.lastElementChild;
+        currentWeekRow.appendChild(day);
+    }
+</script>
 </body>
 </html>
