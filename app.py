@@ -53,6 +53,7 @@ def login():
             return redirect('main')
         else:
             flash('Неверное имя пользователя или пароль', 'error')
+
     return render_template('login.html')
 
 @app.route('/', methods=['GET'])
@@ -67,6 +68,10 @@ def main():
 
     return render_template('main.html', trenings=json.dumps(trenings_dict ))
 
+@app.route('/treening/<trening_date>')
+def trening(trening_date):
+    bd = BD()
+    trening = bd.get_trening(trening_date)
 
 if __name__ == '__main__':
     app.run(debug=True)

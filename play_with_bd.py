@@ -5,7 +5,7 @@ conn = psycopg2.connect(dbname='trening_app', user='maksim',
 cur = conn.cursor()
 
 from bcrypt import hashpw, gensalt, checkpw
-cur.execute("""INSERT INTO trening(update_time) VALUES('2024-10-03')""")
+cur.execute("""INSERT INTO trening(update_time) VALUES('2024-12-16')""")
 conn.commit()
 '''
 password = 'Mn3598sd'

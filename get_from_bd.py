@@ -9,6 +9,7 @@ class BD:
     def get_exercese_for_trening(self, trening_id):
         self.cur.execute("""SELECT * FROM exercese 
         JOIN trening USING(trening_id)
+        join repetition USING(exercese_id)
         WHERE trening_id = %s """, (trening_id,))
 
         exercese = self.cur.fetchall()
@@ -19,8 +20,11 @@ class BD:
         types = self.cur.fetchall()
         return types
 
-    def get_trening(self):
-        self.cur.execute("""SELECT * FROM trening""")
+    def get_trening(self, date=False):
+        if date is False:
+            self.cur.execute("""SELECT * FROM trening""")
+        else:
+            self.cur.execute("""SELECT * FROM trening WHERE update_time = %s """, (date, ))
         trenings = self.cur.fetchall()
         return trenings
 
@@ -48,6 +52,3 @@ class BD:
             VALUES (%s,%s,%s)""", (exercese_id, amount, extra_weight))
         except Exception as e:
             return e
-
-a = BD()
-print(a.get_exercese_for_trening(2))
