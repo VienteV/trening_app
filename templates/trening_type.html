@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>График по датам</title>
+    <!-- Подключаем Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Подключаем плагин для работы с временными данными -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+    <h1>График по датам</h1>
+    <!-- Контейнер для графика -->
+    <div style="width: 800px; height: 400px;">
+        <canvas id="myChart"></canvas>
+    </div>
+    <div style="width: 800px; height: 400px;">
+        <canvas id="myChart2"></canvas>
+    </div>
+    <script>
+        // Данные, которые передаются из Python
+        const labels = {{ labels | tojson }};  // Даты
+        const amounts = {{ amounts | tojson }};  // Значения
+        const weight = {{ weight| tojson }};
+        // Конфигурация графика
+        const config = {
+            type: 'line',  // Тип графика (линейный)
+            data: {
+                labels: labels,  // Даты по оси X
+                datasets: [{
+                    label: 'Amount',  // Название графика
+                    data: amounts,  // Значения по оси Y
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Цвет заливки
+                    borderColor: 'rgba(75, 192, 192, 1)',  // Цвет линии
+                    borderWidth: 1,
+                    fill: false  // Не заливать область под графиком
+                }]
+            },
+            options: {
+                responsive: true,  // График адаптируется под размер контейнера
+                scales: {
+                    x: {
+                        type: 'time',  // Используем временную шкалу для оси X
+                        time: {
+                            unit: 'day',  // Единица измерения (день)
+                            tooltipFormat: 'yyyy-MM-dd',  // Формат даты в подсказках
+                            displayFormats: {
+                                day: 'yyyy-MM-dd'  // Формат отображения дат
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Дата'  // Заголовок оси X
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,  // Ось Y начинается с нуля
+                        title: {
+                            display: true,
+                            text: 'Amount'  // Заголовок оси Y
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => {
+                                // Форматируем дату в подсказках
+                                return new Date(context[0].raw.x).toLocaleDateString();
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const config2 = {
+            type: 'line',  // Тип графика (линейный)
+            data: {
+                labels: labels,  // Даты по оси X
+                datasets: [{
+                    label: 'Amount',  // Название графика
+                    data: weight,  // Значения по оси Y
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Цвет заливки
+                    borderColor: 'rgba(75, 192, 192, 1)',  // Цвет линии
+                    borderWidth: 1,
+                    fill: false  // Не заливать область под графиком
+                }]
+            },
+            options: {
+                responsive: true,  // График адаптируется под размер контейнера
+                scales: {
+                    x: {
+                        type: 'time',  // Используем временную шкалу для оси X
+                        time: {
+                            unit: 'day',  // Единица измерения (день)
+                            tooltipFormat: 'yyyy-MM-dd',  // Формат даты в подсказках
+                            displayFormats: {
+                                day: 'yyyy-MM-dd'  // Формат отображения дат
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Дата'  // Заголовок оси X
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,  // Ось Y начинается с нуля
+                        title: {
+                            display: true,
+                            text: 'Amount'  // Заголовок оси Y
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => {
+                                // Форматируем дату в подсказках
+                                return new Date(context[0].raw.x).toLocaleDateString();
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        // Создаем график
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        const ctx2 = document.getElementById('myChart2').getContext('2d');
+        const myChart2 = new Chart(ctx2, config2);
+    </script>
+</body>
+</html>

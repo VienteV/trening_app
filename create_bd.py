@@ -14,7 +14,10 @@ cur.execute("""CREATE TABLE exercese_type(
 cur.execute("""CREATE TABLE trening(
 	trening_id int UNIQUE PRIMARY KEY
 	GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
-	update_time timestamp
+	update_time timestamp,
+	ADD COLUMN user_name VARCHAR(256),
+	
+	FOREIGN KEY (user_name) REFERENCES users(user_name)
 ) """)
 
 cur.execute("""CREATE TABLE exercese(
@@ -22,7 +25,9 @@ cur.execute("""CREATE TABLE exercese(
 	GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
 	type_id INT,
 	trening_id INT,
+
 	
+	FOREIGN KEY (user_name) REFERENCES users(user_name),
 	FOREIGN KEY(type_id) REFERENCES exercese_type(type_id),
 	FOREIGN KEY(trening_id) REFERENCES trening(trening_id)
 ) """)
