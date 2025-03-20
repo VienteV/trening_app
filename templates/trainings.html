@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренировка за день</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .exercise h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        .repetition {
+            margin-left: 20px;
+            padding: 10px;
+            border-left: 3px solid #007BFF;
+            background-color: #e9f7ff;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .repetition p {
+            margin: 5px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .repetition2 {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тренировка за день</h1>
+        {% for exercise in exercises %}
+        <div class="exercise">
+            <h2>{{ exercise.name }}</h2>
+            <p>{{ exercise.description }}</p>
+            {% for repetition in exercise.repetitions %}
+            <div class="repetition">
+                <p><strong>Количество повторений:</strong> {{ repetition.amount }}</p>
+                <p><strong>Дополнительный вес:</strong> {{ repetition.extra_weight }} кг</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="container">
+        <h1>Добавить тренировку</h1>
+        <form action="" method="POST">
+            <!-- Поле для выбора типа упражнения -->
+            <label for="exercise_type">Тип упражнения:</label>
+            <select id="exercise_type" name="exercise_type" required>
+                <option value="" disabled selected>Выберите тип упражнения</option>
+                {% for type in exercise_types %}
+                <option value="{{type[0]}}">{{type[1]}}</option>
+                {% endfor %}
+                <!-- Добавьте другие типы упражнений -->
+            </select>
+            <small>Выберите тип упражнения из списка.</small>
+
+            <!-- Поле для добавления подходов -->
+            <div id="repetitions">
+                <div class="repetition2">
+                    <label>Подход 1:</label>
+                    <input type="number" name="amount_0" placeholder="Количество повторений (например, 10)" required>
+                    <input type="number" name="weight_0" step="2.5" placeholder="Дополнительный вес (например, 20.5 кг)">
+                </div>
+            </div>
+
+            <!-- Кнопка для добавления нового подхода -->
+            <button type="button" onclick="addRepetition()">Добавить подход</button>
+            <small>Нажмите, чтобы добавить еще один подход.</small>
+
+            <!-- Кнопка отправки формы -->
+            <button type="submit">Сохранить тренировку</button>
+        </form>
+    </div>
+
+    <script>
+        let repetitionCount = 1;
+
+        function addRepetition() {
+            repetitionCount++;
+            const repetitionsDiv = document.getElementById('repetitions');
+            const newRepetition = document.createElement('div');
+            newRepetition.classList.add('repetition');
+            newRepetition.innerHTML = `
+                <label>Подход ${repetitionCount}:</label>
+                <input type="number" name="amount_${repetitionCount}" placeholder="Количество повторений (например, 10)" required>
+                <input type="number" name="weight_${repetitionCount}" step="0.1" placeholder="Дополнительный вес (например, 20.5 кг)">
+            `;
+            repetitionsDiv.appendChild(newRepetition);
+        }
+    </script>
+</body>
+</html>
