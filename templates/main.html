@@ -136,7 +136,6 @@
 <body>
         <!-- Заголовок с кнопкой "Выйти" -->
     <div class="header">
-        <h1>Календарь активности</h1>
         <a href="/logout">Выйти</a>
     </div>
     <div class="container">
@@ -189,7 +188,7 @@
     const tooltip = document.getElementById('tooltip');
 
     // Генерация календаря на 3 месяца (90 дней)
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 91; i++) {
         // Создаем новую строку (неделю) каждые 7 дней
         if (i % 7 === 0) {
             const weekRow = document.createElement('div');

@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 class Repetition:
     amount: int
     extra_weight: float
+    repetition_id: int
 
 @dataclass
 class Exercese:
@@ -39,7 +40,7 @@ class BD:
             """, exercese_id)
             exer = self.cur.fetchone()
 
-            self.cur.execute("""SELECT amount, extra_weight 
+            self.cur.execute("""SELECT amount, extra_weight, repetition_id
             FROM repetition
             WHERE exercese_id = %s""", exercese_id)
             repetitions = self.cur.fetchall()
@@ -48,7 +49,6 @@ class BD:
                 repetition_list.append(Repetition(*repetition))
             final_exercese = Exercese(name = exer[0], description=exer[1], repetitions= repetition_list)
             list_exercese.append(final_exercese)
-            column_names = [desc[0] for desc in self.cur.description]
         return list_exercese
 
     def get_typs(self):
@@ -75,7 +75,6 @@ class BD:
         WHERE type_id = %s AND update_time > %s AND user_name = %s
         GROUP BY update_time
         ORDER BY update_time""", (type_id, date, user_name))
-
         repetitions = self.cur.fetchall()
         return repetitions
 
@@ -85,15 +84,20 @@ class BD:
             VALUES(%s, %s)""", (name, description))
             self.conn.commit()
         except Exception as e:
+            self.conn.rollback()
             return e
 
     def create_trening(self, update_time, user_name):
-        self.cur.execute("""INSERT INTO trening(update_time, user_name) 
-        VALUES(%s, %s) 
-        RETURNING trening_id;""",(update_time, user_name))
-        trening_id = self.cur.fetchone()[0]
-        self.conn.commit()
-        return trening_id
+        try:
+            self.cur.execute("""INSERT INTO trening(update_time, user_name) 
+            VALUES(%s, %s) 
+            RETURNING trening_id;""",(update_time, user_name))
+            trening_id = self.cur.fetchone()[0]
+            self.conn.commit()
+            return trening_id
+        except Exception as e:
+            self.conn.rollback()
+            return e
 
     def create_exercese(self, type_id, trening_id):
         try:
@@ -104,6 +108,7 @@ class BD:
             self.conn.commit()
             return exercese_id
         except Exception as e:
+            self.conn.rollback()
             return e
 
     def create_repetition(self, exercese_id, amount, extra_weight):
@@ -112,4 +117,13 @@ class BD:
             VALUES (%s,%s,%s)""", (exercese_id, amount, extra_weight))
             self.conn.commit()
         except Exception as e:
+            self.conn.rollback()
+            return e
+
+    def delete_exercese(self, exercese_id):
+        try:
+            self.cur.execute("""DELETE FROM repetition WHERE exercese_id = %s""", (exercese_id, ))
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
             return e
