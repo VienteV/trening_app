@@ -13,52 +13,84 @@
     <h1>График по датам</h1>
     <!-- Контейнер для графика -->
     <div style="width: 800px; height: 400px;">
-        <canvas id="myChart"></canvas>
+        <canvas id="combinedChart"></canvas>
     </div>
-    <div style="width: 800px; height: 400px;">
-        <canvas id="myChart2"></canvas>
-    </div>
+
     <script>
         // Данные, которые передаются из Python
         const labels = {{ labels | tojson }};  // Даты
-        const amounts = {{ amounts | tojson }};  // Значения
-        const weight = {{ weight| tojson }};
-        // Конфигурация графика
+        const amounts = {{ amounts | tojson }};  // Значения количества повторений
+        const weight = {{ weight | tojson }};    // Значения весов
+
+        // Конфигурация комбинированного графика
         const config = {
-            type: 'line',  // Тип графика (линейный)
+            type: 'line',
             data: {
-                labels: labels,  // Даты по оси X
-                datasets: [{
-                    label: 'Amount',  // Название графика
-                    data: amounts,  // Значения по оси Y
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Цвет заливки
-                    borderColor: 'rgba(75, 192, 192, 1)',  // Цвет линии
-                    borderWidth: 1,
-                    fill: false  // Не заливать область под графиком
-                }]
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Количество повторений',
+                        data: amounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y', // Используем первую ось Y
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Вес (кг)',
+                        data: weight,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y1', // Используем вторую ось Y
+                        tension: 0.1
+                    }
+                ]
             },
             options: {
-                responsive: true,  // График адаптируется под размер контейнера
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 scales: {
                     x: {
-                        type: 'time',  // Используем временную шкалу для оси X
+                        type: 'time',
                         time: {
-                            unit: 'day',  // Единица измерения (день)
-                            tooltipFormat: 'yyyy-MM-dd',  // Формат даты в подсказках
+                            unit: 'day',
+                            tooltipFormat: 'yyyy-MM-dd',
                             displayFormats: {
-                                day: 'yyyy-MM-dd'  // Формат отображения дат
+                                day: 'yyyy-MM-dd'
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Дата'  // Заголовок оси X
+                            text: 'Дата'
                         }
                     },
                     y: {
-                        beginAtZero: true,  // Ось Y начинается с нуля
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         title: {
                             display: true,
-                            text: 'Amount'  // Заголовок оси Y
+                            text: 'Количество повторений'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Вес (кг)'
+                        },
+                        beginAtZero: true,
+                        // Отделяем правую ось от левой
+                        grid: {
+                            drawOnChartArea: false
                         }
                     }
                 },
@@ -66,69 +98,20 @@
                     tooltip: {
                         callbacks: {
                             title: (context) => {
-                                // Форматируем дату в подсказках
                                 return new Date(context[0].raw.x).toLocaleDateString();
                             }
-                        }
-                    }
-                }
-            }
-        };
-        const config2 = {
-            type: 'line',  // Тип графика (линейный)
-            data: {
-                labels: labels,  // Даты по оси X
-                datasets: [{
-                    label: 'Amount',  // Название графика
-                    data: weight,  // Значения по оси Y
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Цвет заливки
-                    borderColor: 'rgba(75, 192, 192, 1)',  // Цвет линии
-                    borderWidth: 1,
-                    fill: false  // Не заливать область под графиком
-                }]
-            },
-            options: {
-                responsive: true,  // График адаптируется под размер контейнера
-                scales: {
-                    x: {
-                        type: 'time',  // Используем временную шкалу для оси X
-                        time: {
-                            unit: 'day',  // Единица измерения (день)
-                            tooltipFormat: 'yyyy-MM-dd',  // Формат даты в подсказках
-                            displayFormats: {
-                                day: 'yyyy-MM-dd'  // Формат отображения дат
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Дата'  // Заголовок оси X
                         }
                     },
-                    y: {
-                        beginAtZero: true,  // Ось Y начинается с нуля
-                        title: {
-                            display: true,
-                            text: 'Amount'  // Заголовок оси Y
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            title: (context) => {
-                                // Форматируем дату в подсказках
-                                return new Date(context[0].raw.x).toLocaleDateString();
-                            }
-                        }
+                    legend: {
+                        position: 'top'
                     }
                 }
             }
         };
-        // Создаем график
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, config);
-        const ctx2 = document.getElementById('myChart2').getContext('2d');
-        const myChart2 = new Chart(ctx2, config2);
+
+        // Создаем комбинированный график
+        const ctx = document.getElementById('combinedChart').getContext('2d');
+        const combinedChart = new Chart(ctx, config);
     </script>
 </body>
 </html>
