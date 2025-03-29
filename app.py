@@ -109,7 +109,7 @@ def trening(trening_date):
                 amount = request.form['amount_' + str(i)]
                 bd.create_repetition(exercese_id, amount, weight)
             except Exception as e:
-                print(e)
+                ...
 
     trening = bd.get_trening(user_name, trening_date)
     exercises = []
