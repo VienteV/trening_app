@@ -42,4 +42,7 @@ cur.execute("""CREATE TABLE repetition (
 	FOREIGN KEY(exercese_id) REFERENCES exercese(exercese_id)
 ) """)
 
+cur.execute("""CREATE TABLE user (
+user_name VARCHAR(256)""")
+
 conn.commit()

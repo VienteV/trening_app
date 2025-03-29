@@ -78,9 +78,15 @@
     </style>
 </head>
 <body>
+    <div class="header">
+        <a href="/">На главную</a>
+    </div>
     <div class="container">
-        <h1>Тренировка за день</h1>
+        {% if exercises %}
+            <h1>Тренировка за день</h1>
+        {% endif %}
         {% for exercise in exercises %}
+
         <div class="exercise">
             <h2>{{ exercise.name }}</h2>
             <p>{{ exercise.description }}</p>
@@ -90,6 +96,10 @@
                 <p><strong>Дополнительный вес:</strong> {{ repetition.extra_weight }} кг</p>
             </div>
             {% endfor %}
+            <form action="/delete_exercise" method="POST">
+                <input type="hidden" id="exercese_id" name="exercese_id" value="{{exercise.exercise_id}}">
+                <button type="submit">Удалить упражнение</button>
+            </form>
         </div>
         {% endfor %}
     </div>
@@ -112,7 +122,7 @@
                 <div class="repetition2">
                     <label>Подход 1:</label>
                     <input type="number" name="amount_0" placeholder="Количество повторений (например, 10)" required>
-                    <input type="number" name="weight_0" step="2.5" placeholder="Дополнительный вес (например, 20.5 кг)">
+                    <input type="number" name="weight_0" placeholder="Дополнительный вес (например, 20.5 кг)">
                 </div>
             </div>
 
@@ -136,7 +146,7 @@
             newRepetition.innerHTML = `
                 <label>Подход ${repetitionCount}:</label>
                 <input type="number" name="amount_${repetitionCount}" placeholder="Количество повторений (например, 10)" required>
-                <input type="number" name="weight_${repetitionCount}" step="0.1" placeholder="Дополнительный вес (например, 20.5 кг)">
+                <input type="number" name="weight_${repetitionCount}" placeholder="Дополнительный вес (например, 20.5 кг)">
             `;
             repetitionsDiv.appendChild(newRepetition);
         }

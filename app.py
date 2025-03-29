@@ -104,11 +104,14 @@ def trening(trening_date):
                number_of_repetitions.append(i)
         number_of_repetitions = max(tuple(map(lambda x: int(x[1]), tuple(map(lambda x: x.split('_'), number_of_repetitions)))))
         for i in range(number_of_repetitions + 1):
-            weight = request.form['weight_' + str(i)]
-            amount = request.form['amount_' + str(i)]
-            bd.create_repetition(exercese_id, amount, weight)
+            try:
+                weight = request.form['weight_' + str(i)]
+                amount = request.form['amount_' + str(i)]
+                bd.create_repetition(exercese_id, amount, weight)
+            except Exception as e:
+                print(e)
 
-    trening = bd.get_trening(user_name, trening_date,)
+    trening = bd.get_trening(user_name, trening_date)
     exercises = []
     exercise_types = bd.get_typs()
     for tren in trening:
@@ -134,5 +137,20 @@ def logout():
     flash('Вы успешно вышли из системы.', 'success')
     return redirect(url_for('login'))
 
+@app.route('/delete_exercise', methods=['POST'])
+@login_required
+def delete_exercise():
+    if request.method == 'POST':
+        exercese_id = request.form['exercese_id']
+        bd = BD()
+        bd.delete_exercese(exercese_id)
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+'''
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)'''
