@@ -146,7 +146,8 @@ def delete_exercise():
         bd.delete_exercese(exercese_id)
 
 
-
+def test_function():
+    return True
 
 if __name__ == '__main__':
     app.run(debug=True)
