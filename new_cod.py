@@ -11,6 +11,9 @@ class New_class():
         self.n += 2
         return b
 
+    def second_function(self):
+        print('Новая функция 2')
+
 n = New_class(2)
 
 i = 10
