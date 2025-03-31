@@ -1,10 +1,8 @@
-def new_func():
-    a = 1
-    while True:
-        a += 1
-        yield a
+class New_class():
+    def __init__(self, a):
+        self.a = a
 
-a = new_func()
-
-for i in range(10):
-    print(next(a))
+    def __iter__(self):
+        return self
+    def __next__(self):
+        return self.a
