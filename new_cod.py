@@ -17,3 +17,4 @@ i = 10
 while i > 0:
     print(next(n))
     i -= 1
+
