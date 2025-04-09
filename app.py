@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import psycopg2
@@ -91,6 +92,8 @@ def main():
 @app.route('/trainings/<trening_date>', methods=['POST', 'GET'])
 @login_required
 def trening(trening_date):
+    if trening_date == 'today':
+        trening_date = datetime.date.today()
     bd = BD()
     user_name = current_user.id
     if request.method == 'POST':
@@ -145,9 +148,15 @@ def delete_exercise():
         bd = BD()
         bd.delete_exercese(exercese_id)
 
-
-def test_function():
-    return True
+@app.route('/add_exercise', methods=['POST', 'GET'])
+@login_required
+def add_exercise_type():
+    if request.method == "POST":
+        name = request.form['Ex_type']
+        description = request.form['Description']
+        bd = BD()
+        bd.create_type(name, description)
+    return render_template('add_exercise_type.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

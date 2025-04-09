@@ -22,7 +22,7 @@
             font-size: 24px;
             margin: 0;
         }
-        .header button {
+        .header a, .header button {
             background-color: #dc3545;
             color: white;
             border: none;
@@ -30,8 +30,9 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            text-decoration: none;
         }
-        .header button:hover {
+        .header a:hover, .header button:hover {
             background-color: #c82333;
         }
         .container {
@@ -57,16 +58,17 @@
             display: flex;
             flex-wrap: wrap;
             gap: 3px;
-            justify-content: center; /* Выравниваем календарь по центру */
+            justify-content: center;
             margin-bottom: 20px;
         }
         .day {
-            width: 15px; /* Увеличенные ячейки */
-            height: 15px; /* Увеличенные ячейки */
+            width: 15px;
+            height: 15px;
             background-color: #ebedf0;
             border-radius: 2px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-decoration: none !important;
         }
         .day:hover {
             transform: scale(1.2);
@@ -112,7 +114,7 @@
             z-index: 1000;
         }
         .sidebar {
-            width: 150px; /* Уменьшенный боковой блок */
+            width: 150px;
             background-color: #fff;
             padding: 20px;
             border-radius: 6px;
@@ -131,30 +133,58 @@
             margin-bottom: 10px;
             font-size: 14px;
         }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #24292e;
+        }
+        .sidebar ul li a:hover {
+            text-decoration: underline;
+        }
+        .add-training {
+            margin-top: 20px;
+        }
+        .add-training a {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .add-training a:hover {
+            background-color: #218838;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
     </style>
 </head>
 <body>
-        <!-- Заголовок с кнопкой "Выйти" -->
     <div class="header">
         <a href="/logout">Выйти</a>
     </div>
     <div class="container">
-        <!-- Боковой блок -->
         <div class="sidebar">
             <h3>Exercises</h3>
             <ul id="list">
                 {% for type in types %}
-                <li><a href="trening_type/{{type[0]}}">{{type[1]}}</a> </li>
+                <li><a href="trening_type/{{type[0]}}">{{type[1]}}</a></li>
                 {% endfor %}
             </ul>
+
+            <div class="add-training">
+                <a href="/add_exercise">+ Добавить упражнение</a>
+            </div>
         </div>
 
-        <!-- Календарь -->
         <div class="calendar-wrapper">
             <h1>Календарь активности</h1>
             <div class="calendar" id="calendar">
                 <!-- Дни будут добавлены с помощью JavaScript -->
             </div>
+            <div>
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-color" style="background-color: #ebedf0;"></div>
@@ -173,32 +203,35 @@
                     <div class="legend-color" style="background-color: #216e39;"></div>
                     <span>Больше</span>
                 </div>
+
+            </div>
+            <div class="add-training">
+                <a href="/trainings/today">+ Добавить тренировку сегодня</a>
+            </div>
             </div>
         </div>
+
     </div>
 
     <div class="tooltip" id="tooltip"></div>
 
 <script>
-    // Пример данных активности
     const activityData = JSON.parse('{{ trenings | safe }}');
-    console.log(activityData); // Проверка данных
+    console.log(activityData);
 
     const calendar = document.getElementById('calendar');
     const tooltip = document.getElementById('tooltip');
 
-    // Генерация календаря на 3 месяца (90 дней)
     for (let i = 0; i < 91; i++) {
-        // Создаем новую строку (неделю) каждые 7 дней
         if (i % 7 === 0) {
             const weekRow = document.createElement('div');
             weekRow.style.display = 'flex';
             weekRow.style.width = '100%';
-            weekRow.style.justifyContent = 'center'; // Выравниваем строки по центру
+            weekRow.style.justifyContent = 'center';
             calendar.appendChild(weekRow);
         }
 
-        const day = document.createElement('a'); // Используем <a> для создания ссылки
+        const day = document.createElement('a');
         day.classList.add('day');
         const date = new Date();
         date.setDate(date.getDate() - 90 + i);
@@ -206,15 +239,12 @@
         const level = activityData[dateString] || 0;
         day.setAttribute('data-level', level);
 
-        // Добавляем ссылку на день
-        day.href = `/trainings/${dateString}`; // Пример URL для перехода к тренировкам
-        day.style.textDecoration = 'none'; // Убираем подчеркивание у ссылки
+        day.href = `/trainings/${dateString}`;
+        day.style.textDecoration = 'none';
 
-        // Цвет фона в зависимости от уровня активности
         const colors = ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'];
-        day.style.backgroundColor = colors[level] || colors[0]; // Используем цвета из CSS
+        day.style.backgroundColor = colors[level] || colors[0];
 
-        // Добавление тултипа
         day.addEventListener('mouseover', (e) => {
             tooltip.style.display = 'block';
             tooltip.textContent = `${dateString}: Уровень активности ${level}`;
@@ -225,12 +255,9 @@
             tooltip.style.display = 'none';
         });
 
-        // Добавляем день в текущую строку (неделю)
         const currentWeekRow = calendar.lastElementChild;
         currentWeekRow.appendChild(day);
     }
-
-    console.log(calendar.innerHTML); // Проверка, что дни добавлены
 </script>
 </body>
 </html>
