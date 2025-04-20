@@ -51,8 +51,15 @@ class BD:
             list_exercese.append(final_exercese)
         return list_exercese
 
-    def get_typs(self):
-        self.cur.execute("""SELECT * FROM exercese_type""")
+    def get_typs(self, user = False):
+        if not user:
+            self.cur.execute("""SELECT * FROM exercese_type""")
+        else:
+            self.cur.execute("""SELECT exercese_type.type_id, exercese_type.name, exercese_type.description FROM exercese_type 
+            JOIN exercese USING(type_id)
+            JOIN trening USING(trening_id)
+            WHERE user_name = %s
+            GROUP BY exercese_type.type_id""", (user, ))
         types = self.cur.fetchall()
         return types
 
