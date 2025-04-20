@@ -15,7 +15,7 @@ cur.execute("""CREATE TABLE trening(
 	trening_id int UNIQUE PRIMARY KEY
 	GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
 	update_time timestamp,
-	ADD COLUMN user_name VARCHAR(256),
+	user_name VARCHAR(256),
 	
 	FOREIGN KEY (user_name) REFERENCES users(user_name)
 ) """)

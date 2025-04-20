@@ -79,8 +79,16 @@
         <label for="password">Пароль:</label>
         <input type="password" id="password" name="password" required>
         <br>
+        <input type="hidden" name="timestamp" id="timestamp" value="">
+        <script>
+            document.getElementById('timestamp').value = new Date().getTime();
+        </script>
         <button type="submit">Войти</button>
     </form>
     <a href="/register">Зарегистрироваться</a>
+
+
 </body>
+
 </html>
+

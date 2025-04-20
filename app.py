@@ -1,8 +1,8 @@
 import datetime
 import json
-
+import time
 import psycopg2
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask, render_template, request, redirect, flash, url_for, get_flashed_messages
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from bcrypt import hashpw, gensalt, checkpw
 import configparser
@@ -39,6 +39,8 @@ def load_user(user_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user:
+        return redirect('/')
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -57,9 +59,17 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user:
+        return redirect('/')
     if request.method == 'POST':
+        timestamp = int(request.form['timestamp'])
+        cur_time = int(time.time() * 1000)
+        if cur_time - timestamp <= 3000:
+            get_flashed_messages()
+            flash('Уходи', 'error')
         username = request.form['username']
         password = request.form['password']
+
         conn = psycopg2.connect(dbname='trening_app', user='maksim',
                                 password=config.get('data', 'dbpassword'), host='localhost')
         cur = conn.cursor()
@@ -86,7 +96,7 @@ def main():
     trenings_dict = {}
     for i in  trenings:
         trenings_dict[i] = trenings_dict.get(i, 0) + 1
-    types = bd.get_typs()
+    types = bd.get_typs(user_name)
     return render_template('main.html', trenings=json.dumps(trenings_dict), types=types )
 
 @app.route('/trainings/<trening_date>', methods=['POST', 'GET'])
@@ -137,6 +147,7 @@ def trening_type_info(trening_type_id):
 @login_required
 def logout():
     logout_user()
+    get_flashed_messages()
     flash('Вы успешно вышли из системы.', 'success')
     return redirect(url_for('login'))
 
