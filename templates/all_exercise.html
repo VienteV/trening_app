@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типы упражнений</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .types-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .type-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .type-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .type-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #eee; /* Запасной цвет, если изображение отсутствует */
+        }
+
+        .type-content {
+            padding: 20px;
+        }
+
+        .type-name {
+            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .type-description {
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Типы упражнений</h1>
+
+    <div class="types-container">
+        {% for type in types %}
+        <div class="type-card">
+            <!-- Место для картинки (замените src на реальный путь к изображению) -->
+            <img src="/static/images/exercise_types/type_{{ type.type_id }}.jpg" alt="{{ type.name }}" class="type-image">
+            <div class="type-content">
+                <h2 class="type-name">{{ type[1]}}</h2>
+                <p class="type-description">{{ type[2] }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -75,6 +75,18 @@
             border-radius: 4px;
             background-color: #f9f9f9;
         }
+        .add-training {
+            margin-top: 20px;
+        }
+        .add-training a {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +110,7 @@
             {% endfor %}
             <form action="/delete_exercise" method="POST">
                 <input type="hidden" id="exercese_id" name="exercese_id" value="{{exercise.exercise_id}}">
+                <input type='hidden' name="trening_date" value="{{trening_date}}">
                 <button type="submit">Удалить упражнение</button>
             </form>
         </div>
@@ -115,8 +128,9 @@
                 {% endfor %}
                 <!-- Добавьте другие типы упражнений -->
             </select>
-            <small>Выберите тип упражнения из списка.</small>
-
+            <div class="add-training">
+                <a href="/add_exercise">Добавить упражнение</a>
+            </div>
             <!-- Поле для добавления подходов -->
             <div id="repetitions">
                 <div class="repetition2">

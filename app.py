@@ -39,9 +39,7 @@ def load_user(user_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user:
-        return redirect('/')
-    if request.method == 'POST':
+    if request.method == 'POST' and False:
         username = request.form['username']
         password = request.form['password']
         password2 = request.form['password2']
@@ -59,8 +57,6 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user:
-        return redirect('/')
     if request.method == 'POST':
         timestamp = int(request.form['timestamp'])
         cur_time = int(time.time() * 1000)
@@ -129,7 +125,7 @@ def trening(trening_date):
     exercise_types = bd.get_typs()
     for tren in trening:
         exercises.extend(bd.get_exercese_for_trening(tren[0]))
-    return render_template('trainings.html', exercises=exercises, exercise_types = exercise_types )
+    return render_template('trainings.html', exercises=exercises, exercise_types = exercise_types, trening_date=trening_date )
 
 @app.route('/trening_type/<trening_type_id>/', methods=['GET'])
 @login_required
@@ -156,8 +152,10 @@ def logout():
 def delete_exercise():
     if request.method == 'POST':
         exercese_id = request.form['exercese_id']
+        trening_date = request.form['trening_date']
         bd = BD()
         bd.delete_exercese(exercese_id)
+        return redirect(f'trainings/{trening_date}')
 
 @app.route('/add_exercise', methods=['POST', 'GET'])
 @login_required
@@ -168,6 +166,13 @@ def add_exercise_type():
         bd = BD()
         bd.create_type(name, description)
     return render_template('add_exercise_type.html')
+
+@app.route('/show_all_exercise', methods=['POST', 'GET', 'UPDATE'])
+def show_all_exercise():
+    bd = BD()
+    ex_types = bd.get_typs()
+    return render_template('all_exercise.html', types=ex_types)
+
 
 
 if __name__ == '__main__':
