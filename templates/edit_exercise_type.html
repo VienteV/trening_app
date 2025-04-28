@@ -99,12 +99,12 @@
         <!-- <div class="alert alert-success">Success message</div> -->
         <!-- <div class="alert alert-error">Error message</div> -->
 
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" >
             <label for="Ex_type">Exercise:</label>
-            <input type="text" id="Ex_type" name="Ex_type" required>
+            <input type="text" id="Ex_type" name="Ex_type" value="{{type[1]}}" required>
 
             <label for="Description">Description:</label>
-            <input type="text" id="Description" name="Description" required>
+            <input type="text" id="Description" name="Description" value="{{type[2]}}" required>
 
             <label for="image">Add image:</label>
             <input type="file" id="image" name="image" accept="image/*">

@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import time
 import psycopg2
 from flask import Flask, render_template, request, redirect, flash, url_for, get_flashed_messages
@@ -13,6 +14,12 @@ config.read('config')
 
 app = Flask(__name__)
 app.secret_key = config.get('data', 'secret_key')
+app.config['UPLOAD_FOLDER'] = 'static/images'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpg', 'gif'}
+
+def allowed_file(file_name):
+    if file_name.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']:
+        return True
 
 def hash_password(password):
     # Генерация соли и хэширование
@@ -163,8 +170,16 @@ def add_exercise_type():
     if request.method == "POST":
         name = request.form['Ex_type']
         description = request.form['Description']
+        file = request.files['image']
         bd = BD()
-        bd.create_type(name, description)
+        if file and allowed_file(file.filename):
+            f_format = file.filename.rsplit('.',1)[1]
+            file_name = f'{name}{str(datetime.date.today())}.{f_format}'
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+            file.save(file_path)
+            bd.create_type(name, description, file_name, file_path)
+        else:
+            bd.create_type(name, description)
     return render_template('add_exercise_type.html')
 
 @app.route('/show_all_exercise', methods=['POST', 'GET', 'UPDATE'])
@@ -173,7 +188,23 @@ def show_all_exercise():
     ex_types = bd.get_typs()
     return render_template('all_exercise.html', types=ex_types)
 
+@app.route('/edit_type/<trening_type_id>', methods=['POST', 'GET'])
+def edit_type(trening_type_id):
+    bd = BD()
+    ex_type = bd.get_typs(type_id = trening_type_id)[0]
+    if request.method == 'POST':
+        name = request.form['Ex_type']
+        description = request.form['Description']
+        file = request.files['image']
+        if file and allowed_file(file.filename):
+            f_format = file.filename.rsplit('.',1)[1]
+            file_name = f'{name}{str(datetime.date.today())}.{f_format}'
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+            file.save(file_path)
+            bd.update_type(trening_type_id, name, description, file_name, file_path)
+            return redirect('/show_all_exercise')
 
+    return render_template('edit_exercise_type.html', type=ex_type)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

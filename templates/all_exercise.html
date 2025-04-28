@@ -68,13 +68,16 @@
         {% for type in types %}
         <div class="type-card">
             <!-- Место для картинки (замените src на реальный путь к изображению) -->
-            <img src="/static/images/exercise_types/type_{{ type.type_id }}.jpg" alt="{{ type.name }}" class="type-image">
+            <img src="{{ type[4] }}" alt="{{ type[3] }}" class="type-image">
             <div class="type-content">
-                <h2 class="type-name">{{ type[1]}}</h2>
+                <h2 class="type-name"><a href="/edit_type/{{type[0]}}">{{ type[1]}}</a></h2>
                 <p class="type-description">{{ type[2] }}</p>
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div class="add-training">
+<a href="/add_exercise">Добавить упражнение</a>
     </div>
 </body>
 </html>

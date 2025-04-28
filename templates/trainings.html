@@ -109,7 +109,7 @@
             </div>
             {% endfor %}
             <form action="/delete_exercise" method="POST">
-                <input type="hidden" id="exercese_id" name="exercese_id" value="{{exercise.exercise_id}}">
+                <input type="hidden" id="exercese_id" name="exercese_id" value="{{exercise.exercese_id}}">
                 <input type='hidden' name="trening_date" value="{{trening_date}}">
                 <button type="submit">Удалить упражнение</button>
             </form>
@@ -128,9 +128,9 @@
                 {% endfor %}
                 <!-- Добавьте другие типы упражнений -->
             </select>
-            <div class="add-training">
-                <a href="/add_exercise">Добавить упражнение</a>
-            </div>
+    <div class="add-training">
+<a href="/add_exercise">Добавить упражнение</a>
+    </div>
             <!-- Поле для добавления подходов -->
             <div id="repetitions">
                 <div class="repetition2">

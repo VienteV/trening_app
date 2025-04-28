@@ -13,6 +13,7 @@ class Repetition:
 
 @dataclass
 class Exercese:
+    exercese_id: int
     name: str
     description: str
     repetitions: list
@@ -47,12 +48,14 @@ class BD:
             repetition_list = []
             for repetition in repetitions :
                 repetition_list.append(Repetition(*repetition))
-            final_exercese = Exercese(name = exer[0], description=exer[1], repetitions= repetition_list)
+            final_exercese = Exercese(exercese_id = exercese_id[0], name = exer[0], description=exer[1], repetitions= repetition_list)
             list_exercese.append(final_exercese)
         return list_exercese
 
-    def get_typs(self, user = False):
-        if not user:
+    def get_typs(self, user = False, type_id = False):
+        if type_id:
+            self.cur.execute("""SELECT * FROM exercese_type WHERE type_id = %s""", (type_id))
+        elif not user:
             self.cur.execute("""SELECT * FROM exercese_type""")
         else:
             self.cur.execute("""SELECT exercese_type.type_id, exercese_type.name, exercese_type.description FROM exercese_type 
@@ -62,6 +65,18 @@ class BD:
             GROUP BY exercese_type.type_id""", (user, ))
         types = self.cur.fetchall()
         return types
+
+    def update_type(self, type_id ,name, description='', file_name = '', file_path = ''):
+        try:
+            self.cur.execute("""UPDATE exercese_type 
+            SET name = %s,
+             description = %s,
+             filename = %s,
+             filepath = %s
+             WHERE type_id = %s""", (name, description, file_name , file_path, type_id))
+            self.conn.commit()
+        except Exception as e:
+            return e
 
     def get_trening(self, user_name, date=False):
         if date is False:
@@ -85,10 +100,10 @@ class BD:
         repetitions = self.cur.fetchall()
         return repetitions
 
-    def create_type(self, name, description=''):
+    def create_type(self, name, description='', file_name = '', file_path = ''):
         try:
-            self.cur.execute("""INSERT INTO exercese_type(name, description) 
-            VALUES(%s, %s)""", (name, description))
+            self.cur.execute("""INSERT INTO exercese_type(name, description, filename, filepath) 
+            VALUES(%s, %s, %s, %s)""", (name, description, file_name, file_path))
             self.conn.commit()
         except Exception as e:
             self.conn.rollback()
@@ -130,7 +145,9 @@ class BD:
     def delete_exercese(self, exercese_id):
         try:
             self.cur.execute("""DELETE FROM repetition WHERE exercese_id = %s""", (exercese_id, ))
+            self.cur.execute("""DELETE FROM exercese WHERE exercese_id = %s""", (exercese_id, ))
             self.conn.commit()
         except Exception as e:
             self.conn.rollback()
+            print(e)
             return e
