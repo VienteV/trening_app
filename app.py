@@ -132,7 +132,7 @@ def trening(trening_date):
     exercise_types = bd.get_typs()
     for tren in trening:
         exercises.extend(bd.get_exercese_for_trening(tren[0]))
-    return render_template('trainings.html', exercises=exercises, exercise_types = exercise_types, trening_date=trening_date )
+    return render_template('trainings.html', exercises=exercises, exercise_types = exercise_types, trening_date = trening_date )
 
 @app.route('/trening_type/<trening_type_id>/', methods=['GET'])
 @login_required

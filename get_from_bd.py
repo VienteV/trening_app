@@ -17,7 +17,7 @@ class Exercese:
     name: str
     description: str
     repetitions: list
-
+    filepath: str
 
 config = configparser.ConfigParser()
 config.read('config')
@@ -35,7 +35,7 @@ class BD:
         exercese = self.cur.fetchall()
         list_exercese = []
         for exercese_id in exercese:
-            self.cur.execute("""SELECT  name, description
+            self.cur.execute("""SELECT  name, description, filepath
             FROM exercese JOIN exercese_type USING(type_id)
             WHERE exercese_id = %s
             """, exercese_id)
@@ -48,17 +48,17 @@ class BD:
             repetition_list = []
             for repetition in repetitions :
                 repetition_list.append(Repetition(*repetition))
-            final_exercese = Exercese(exercese_id = exercese_id[0], name = exer[0], description=exer[1], repetitions= repetition_list)
+            final_exercese = Exercese(exercese_id = exercese_id[0], name = exer[0], description=exer[1], repetitions= repetition_list, filepath=exer[-1])
             list_exercese.append(final_exercese)
         return list_exercese
 
     def get_typs(self, user = False, type_id = False):
         if type_id:
-            self.cur.execute("""SELECT * FROM exercese_type WHERE type_id = %s""", (type_id))
+            self.cur.execute("""SELECT * FROM exercese_type WHERE type_id = %s""", (type_id,))
         elif not user:
             self.cur.execute("""SELECT * FROM exercese_type""")
         else:
-            self.cur.execute("""SELECT exercese_type.type_id, exercese_type.name, exercese_type.description FROM exercese_type 
+            self.cur.execute("""SELECT exercese_type.type_id, exercese_type.name, exercese_type.description, filepath, filename FROM exercese_type 
             JOIN exercese USING(type_id)
             JOIN trening USING(trening_id)
             WHERE user_name = %s

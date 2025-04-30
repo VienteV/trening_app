@@ -29,6 +29,21 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+        .exercise-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .exercise-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid #007BFF;
         }
         .exercise h2 {
             margin-top: 0;
@@ -87,6 +102,33 @@
             text-decoration: none;
             font-size: 14px;
         }
+
+        /* Стили для выпадающего списка с картинками */
+        .exercise-option {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+        }
+        .exercise-option img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        select option {
+            height: 40px;
+            padding: 5px;
+        }
+
+        /* Анимация при наведении на упражнение */
+        .exercise {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .exercise:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -98,9 +140,13 @@
             <h1>Тренировка за день</h1>
         {% endif %}
         {% for exercise in exercises %}
-
         <div class="exercise">
-            <h2>{{ exercise.name }}</h2>
+            <div class="exercise-header">
+                {% if exercise.filepath %}
+                <img src="{{exercise.filepath}}" alt="{{ exercise.name }}" class="exercise-image">
+                {% endif %}
+                <h2>{{ exercise.name }}</h2>
+            </div>
             <p>{{ exercise.description }}</p>
             {% for repetition in exercise.repetitions %}
             <div class="repetition">
@@ -124,13 +170,16 @@
             <select id="exercise_type" name="exercise_type" required>
                 <option value="" disabled selected>Выберите тип упражнения</option>
                 {% for type in exercise_types %}
-                <option value="{{type[0]}}">{{type[1]}}</option>
+                <option value="{{type[0]}}" data-image="{{type[3]}}">
+                    {{type[1]}}
+                </option>
                 {% endfor %}
-                <!-- Добавьте другие типы упражнений -->
             </select>
-    <div class="add-training">
-<a href="/add_exercise">Добавить упражнение</a>
-    </div>
+
+            <div class="add-training">
+                <a href="/add_exercise">Добавить упражнение</a>
+            </div>
+
             <!-- Поле для добавления подходов -->
             <div id="repetitions">
                 <div class="repetition2">
@@ -164,6 +213,24 @@
             `;
             repetitionsDiv.appendChild(newRepetition);
         }
+
+        // Функция для отображения картинок в выпадающем списке
+        document.addEventListener('DOMContentLoaded', function() {
+            const exerciseTypeSelect = document.getElementById('exercise_type');
+
+            // Создаем кастомный вариант для каждого option
+            for (let option of exerciseTypeSelect.options) {
+                if (option.value && option.dataset.image) {
+                    option.style.backgroundImage = `url(${option.dataset.image})`;
+                    option.style.backgroundRepeat = 'no-repeat';
+                    option.style.backgroundPosition = 'left center';
+                    option.style.backgroundSize = '20px 20px';
+                    option.style.paddingLeft = '30px';
+                    option.style.height = '30px';
+                    option.style.lineHeight = '30px';
+                }
+            }
+        });
     </script>
 </body>
 </html>

@@ -13,7 +13,29 @@
             background-color: #f5f5f5;
             color: #333;
         }
-
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .header a, .header button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .header a:hover, .header button:hover {
+            background-color: #c82333;
+        }
         h1 {
             text-align: center;
             margin-bottom: 30px;
@@ -62,6 +84,9 @@
     </style>
 </head>
 <body>
+    <div class="header">
+        <a href="/">На главную</a>
+    </div>
     <h1>Типы упражнений</h1>
 
     <div class="types-container">
