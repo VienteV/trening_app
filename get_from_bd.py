@@ -35,7 +35,7 @@ class BD:
         exercese = self.cur.fetchall()
         list_exercese = []
         for exercese_id in exercese:
-            self.cur.execute("""SELECT  name, description, filepath
+            self.cur.execute("""SELECT  name, description, filename
             FROM exercese JOIN exercese_type USING(type_id)
             WHERE exercese_id = %s
             """, exercese_id)
@@ -151,3 +151,8 @@ class BD:
             self.conn.rollback()
             print(e)
             return e
+
+    def get_type_id(self, type_name):
+        self.cur.execute("""SELECT type_id FROM exercese_type WHERE name = %s""", (type_name, ))
+        type_id = self.cur.fetchone()
+        return type_id

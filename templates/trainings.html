@@ -135,102 +135,132 @@
     <div class="header">
         <a href="/">На главную</a>
     </div>
+
+    <!-- Показ существующей тренировки -->
     <div class="container">
         {% if exercises %}
             <h1>Тренировка за день</h1>
-        {% endif %}
-        {% for exercise in exercises %}
-        <div class="exercise">
-            <div class="exercise-header">
-                {% if exercise.filepath %}
-                <img src="{{exercise.filepath}}" alt="{{ exercise.name }}" class="exercise-image">
-                {% endif %}
-                <h2>{{ exercise.name }}</h2>
-            </div>
-            <p>{{ exercise.description }}</p>
-            {% for repetition in exercise.repetitions %}
-            <div class="repetition">
-                <p><strong>Количество повторений:</strong> {{ repetition.amount }}</p>
-                <p><strong>Дополнительный вес:</strong> {{ repetition.extra_weight }} кг</p>
+            {% for exercise in exercises %}
+            <div class="exercise">
+                <div class="exercise-header">
+                    {% if exercise.filepath %}
+                    <img src="{{ url_for('static', filename='images/' + exercise.filepath) }}" alt="{{ exercise.name }}" class="exercise-image">
+                    {% endif %}
+                    <h2>{{ exercise.name }}</h2>
+                </div>
+                <p>{{ exercise.description }}</p>
+                {% for repetition in exercise.repetitions %}
+                <div class="repetition">
+                    <p><strong>Подход {{ loop.index }}:</strong> {{ repetition.amount }} повторений (вес: {{ repetition.extra_weight }} кг)</p>
+                </div>
+                {% endfor %}
+                <form action="/delete_exercise" method="POST">
+                    <input type="hidden" name="exercese_id" value="{{exercise.exercese_id}}">
+                    <input type='hidden' name="trening_date" value="{{trening_date}}">
+                    <button type="submit">Удалить упражнение</button>
+                </form>
             </div>
             {% endfor %}
-            <form action="/delete_exercise" method="POST">
-                <input type="hidden" id="exercese_id" name="exercese_id" value="{{exercise.exercese_id}}">
-                <input type='hidden' name="trening_date" value="{{trening_date}}">
-                <button type="submit">Удалить упражнение</button>
-            </form>
-        </div>
-        {% endfor %}
+        {% endif %}
     </div>
+
+    <!-- Форма добавления тренировки -->
     <div class="container">
-        <h1>Добавить тренировку</h1>
-        <form action="" method="POST">
-            <!-- Поле для выбора типа упражнения -->
-            <label for="exercise_type">Тип упражнения:</label>
-            <select id="exercise_type" name="exercise_type" required>
-                <option value="" disabled selected>Выберите тип упражнения</option>
-                {% for type in exercise_types %}
-                <option value="{{type[0]}}" data-image="{{type[3]}}">
-                    {{type[1]}}
-                </option>
-                {% endfor %}
-            </select>
+        <h1>Добавить упражнения</h1>
+        <form action="/trainings/{{ trening_date }}" method="POST">
+            <div id="exercises-container">
+                <!-- Блок для первого упражнения -->
+                <div class="exercise-block" data-exercise-id="0">
+                    <div class="exercise-select">
+                        <label>Упражнение:</label>
+                        <select name="exercise_type_0" required>
+                            <option value="" disabled selected>Выберите упражнение</option>
+                            {% for type in exercise_types %}
+                            <option value="{{type[0]}}">{{type[1]}}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="remove-exercise" onclick="removeExercise(0)">✕</button>
+                    </div>
 
-            <div class="add-training">
-                <a href="/add_exercise">Добавить упражнение</a>
-            </div>
-
-            <!-- Поле для добавления подходов -->
-            <div id="repetitions">
-                <div class="repetition2">
-                    <label>Подход 1:</label>
-                    <input type="number" name="amount_0" placeholder="Количество повторений (например, 10)" required>
-                    <input type="number" name="weight_0" placeholder="Дополнительный вес (например, 20.5 кг)">
+                    <div class="repetitions-container" id="repetitions-0">
+                        <div class="repetition">
+                            <label>Подход 1:</label>
+                            <input type="number" name="amount_0_0" placeholder="Повторения" required>
+                            <input type="number" name="weight_0_0" placeholder="Вес (кг)" step="0.1">
+                        </div>
+                    </div>
+                    <button type="button" class="add-repetition" onclick="addRepetition(0)">+ Добавить подход</button>
                 </div>
             </div>
 
-            <!-- Кнопка для добавления нового подхода -->
-            <button type="button" onclick="addRepetition()">Добавить подход</button>
-            <small>Нажмите, чтобы добавить еще один подход.</small>
-
-            <!-- Кнопка отправки формы -->
-            <button type="submit">Сохранить тренировку</button>
+            <button type="button" id="add-exercise">+ Добавить ещё упражнение</button>
+            <button type="submit" class="save-training">Сохранить тренировку</button>
         </form>
     </div>
 
     <script>
-        let repetitionCount = 1;
+        let exerciseCounter = 0;
+        let repetitionCounters = { 0: 1 }; // Для каждого упражнения свой счётчик подходов
 
-        function addRepetition() {
-            repetitionCount++;
-            const repetitionsDiv = document.getElementById('repetitions');
-            const newRepetition = document.createElement('div');
-            newRepetition.classList.add('repetition');
-            newRepetition.innerHTML = `
-                <label>Подход ${repetitionCount}:</label>
-                <input type="number" name="amount_${repetitionCount}" placeholder="Количество повторений (например, 10)" required>
-                <input type="number" name="weight_${repetitionCount}" placeholder="Дополнительный вес (например, 20.5 кг)">
+        // Добавить новое упражнение
+        document.getElementById('add-exercise').addEventListener('click', function() {
+            exerciseCounter++;
+            repetitionCounters[exerciseCounter] = 1; // Инициализация счётчика подходов
+
+            const exercisesContainer = document.getElementById('exercises-container');
+            const newExerciseBlock = document.createElement('div');
+            newExerciseBlock.className = 'exercise-block';
+            newExerciseBlock.dataset.exerciseId = exerciseCounter;
+
+            newExerciseBlock.innerHTML = `
+                <div class="exercise-select">
+                    <label>Упражнение:</label>
+                    <select name="exercise_type_${exerciseCounter}" required>
+                        <option value="" disabled selected>Выберите упражнение</option>
+                        {% for type in exercise_types %}
+                        <option value="{{type[0]}}">{{type[1]}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="remove-exercise" onclick="removeExercise(${exerciseCounter})">✕</button>
+                </div>
+
+                <div class="repetitions-container" id="repetitions-${exerciseCounter}">
+                    <div class="repetition">
+                        <label>Подход 1:</label>
+                        <input type="number" name="amount_${exerciseCounter}_0" placeholder="Повторения" required>
+                        <input type="number" name="weight_${exerciseCounter}_0" placeholder="Вес (кг)" step="0.1">
+                    </div>
+                </div>
+                <button type="button" class="add-repetition" onclick="addRepetition(${exerciseCounter})">+ Добавить подход</button>
             `;
-            repetitionsDiv.appendChild(newRepetition);
+
+            exercisesContainer.appendChild(newExerciseBlock);
+        });
+
+        // Добавить подход к упражнению
+        function addRepetition(exerciseId) {
+            const repCount = repetitionCounters[exerciseId]++;
+            const repsContainer = document.getElementById(`repetitions-${exerciseId}`);
+
+            const newRep = document.createElement('div');
+            newRep.className = 'repetition';
+            newRep.innerHTML = `
+                <label>Подход ${repCount + 1}:</label>
+                <input type="number" name="amount_${exerciseId}_${repCount}" placeholder="Повторения" required>
+                <input type="number" name="weight_${exerciseId}_${repCount}" placeholder="Вес (кг)" step="0.1">
+            `;
+
+            repsContainer.appendChild(newRep);
         }
 
-        // Функция для отображения картинок в выпадающем списке
-        document.addEventListener('DOMContentLoaded', function() {
-            const exerciseTypeSelect = document.getElementById('exercise_type');
-
-            // Создаем кастомный вариант для каждого option
-            for (let option of exerciseTypeSelect.options) {
-                if (option.value && option.dataset.image) {
-                    option.style.backgroundImage = `url(${option.dataset.image})`;
-                    option.style.backgroundRepeat = 'no-repeat';
-                    option.style.backgroundPosition = 'left center';
-                    option.style.backgroundSize = '20px 20px';
-                    option.style.paddingLeft = '30px';
-                    option.style.height = '30px';
-                    option.style.lineHeight = '30px';
-                }
+        // Удалить упражнение
+        function removeExercise(exerciseId) {
+            if (Object.keys(repetitionCounters).length > 1) { // Не даём удалить последнее упражнение
+                document.querySelector(`.exercise-block[data-exercise-id="${exerciseId}"]`).remove();
+                delete repetitionCounters[exerciseId];
+            } else {
+                alert("Должно быть хотя бы одно упражнение!");
             }
-        });
+        }
     </script>
 </body>
-</html>

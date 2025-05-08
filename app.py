@@ -12,7 +12,7 @@ from get_from_bd import BD
 config = configparser.ConfigParser()
 config.read('config')
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static/')
 app.secret_key = config.get('data', 'secret_key')
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpg', 'gif'}
@@ -110,23 +110,26 @@ def trening(trening_date):
     bd = BD()
     user_name = current_user.id
     if request.method == 'POST':
-        all_gets = tuple(request.form)
-        exercise_type_id = request.form['exercise_type']
+        all_gets = list(request.form)
         trening_id = bd.create_trening(trening_date, user_name)
-        exercese_id = bd.create_exercese(exercise_type_id, trening_id)
-        number_of_repetitions = []
-        for i in all_gets:
-           if 'weight' in i:
-               number_of_repetitions.append(i)
-        number_of_repetitions = max(tuple(map(lambda x: int(x[1]), tuple(map(lambda x: x.split('_'), number_of_repetitions)))))
-        for i in range(number_of_repetitions + 1):
-            try:
-                weight = request.form['weight_' + str(i)]
-                amount = request.form['amount_' + str(i)]
-                bd.create_repetition(exercese_id, amount, weight)
-            except Exception as e:
-                ...
 
+        number_of_types = []
+        exercises = []
+        i = 0
+        while i < len(all_gets):
+            if 'exercise' in all_gets[i]:
+                exercises.append(all_gets.pop(i))
+            i += 1
+        for exercise in exercises:
+            number_of_exercise = exercise.split('_')[-1]
+            exercise_type = request.form[exercise]
+            exercise_id = bd.create_exercese(exercise_type, trening_id)
+            for i in all_gets:
+                if f'weight_{number_of_exercise}' in i:
+                    number = i.split('_')[-1]
+                    weight = request.form[i]
+                    amount = request.form[f'amount_{number_of_exercise}_{number}']
+                    bd.create_repetition(exercise_id, amount, weight)
     trening = bd.get_trening(user_name, trening_date)
     exercises = []
     exercise_types = bd.get_typs()
