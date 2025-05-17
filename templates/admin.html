@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор токена</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8f0;
+            color: #1a3e1a;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #e0f0e0;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 80, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #2d5a2d;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #token-display {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #d0e8d0;
+            border-radius: 5px;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Генератор токена</h1>
+        <button id="generate-btn">Сгенерировать токен</button>
+        <button id="show-btn">Посмотреть свободные токены</button>
+        <div id="token-display" class="hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById("generate-btn").addEventListener("click", async () => {
+            const response = await fetch("/generate-token");
+            const data = await response.json();
+
+            const tokenDisplay = document.getElementById("token-display");
+            tokenDisplay.textContent = `Ваш токен: ${data.token}`;
+            tokenDisplay.classList.remove("hidden");
+        });
+        document.getElementById("show-btn").addEventListener("click", async () => {
+            const response = await fetch("/get-token");
+            const data = await response.json();
+
+            const tokenDisplay = document.getElementById("token-display");
+            tokenDisplay.textContent = `Ваш токен: ${data.token}`;
+            tokenDisplay.classList.remove("hidden");
+        });
+    </script>
+</body>
+</html>

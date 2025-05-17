@@ -1,9 +1,10 @@
 import datetime
 import json
+import secrets
 import os
 import time
 import psycopg2
-from flask import Flask, render_template, request, redirect, flash, url_for, get_flashed_messages
+from flask import Flask, render_template, request, redirect, flash, url_for, get_flashed_messages, abort, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from bcrypt import hashpw, gensalt, checkpw
 import configparser
@@ -46,11 +47,14 @@ def load_user(user_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST' and False:
+    if request.method == 'POST':
+        bd = BD()
         username = request.form['username']
         password = request.form['password']
         password2 = request.form['password2']
-        if password == password2:
+        token = request.form['token']
+        tokens = bd.give_tokens()
+        if password == password2 and token in tokens:
             hased_password = hash_password(password).decode()
             conn = psycopg2.connect(dbname='trening_app', user='maksim',
                                     password=config.get('data', 'dbpassword'), host='localhost')
@@ -58,6 +62,7 @@ def register():
             cur.execute("""INSERT INTO users(user_name, password) 
             VALUES(%s, %s)""", (username, hased_password))
             conn.commit()
+            bd.use_token(token)
             return redirect('login')
     return render_template('register.html')
 
@@ -208,6 +213,35 @@ def edit_type(trening_type_id):
             return redirect('/show_all_exercise')
 
     return render_template('edit_exercise_type.html', type=ex_type)
+
+@app.route('/admin', methods=['POST', 'GET'])
+def admin():
+    user_name = current_user.id
+    if user_name == 'Maksim':
+        return render_template('admin.html')
+    else:
+        return abort(404)
+
+@app.route("/generate-token", methods=["GET"])
+def generate_token():
+    user_name = current_user.id
+    if user_name == 'Maksim':
+        bd = BD()
+        token = secrets.token_hex(16)
+        bd.add_token(token)
+        return jsonify({"token": token})
+    else:
+        return abort(404)
+
+@app.route("/get-token", methods=["GET"])
+def give_tokens():
+    user_name = current_user.id
+    if user_name == 'Maksim':
+        bd = BD()
+        tokens = bd.give_tokens()
+        return jsonify({"token": tuple(tokens)})
+    else:
+        return abort(404)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -62,7 +62,8 @@ class BD:
             JOIN exercese USING(type_id)
             JOIN trening USING(trening_id)
             WHERE user_name = %s
-            GROUP BY exercese_type.type_id""", (user, ))
+            GROUP BY exercese_type.type_id
+            ORDER BY exercese_type.name""", (user, ))
         types = self.cur.fetchall()
         return types
 
@@ -156,3 +157,29 @@ class BD:
         self.cur.execute("""SELECT type_id FROM exercese_type WHERE name = %s""", (type_name, ))
         type_id = self.cur.fetchone()
         return type_id
+
+    def add_token(self, token):
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS tokens (
+        token text UNIQUE PRIMARY KEY,
+        used BOOLEAN DEFAULT FALSE)""")
+        self.conn.commit()
+        try:
+            self.cur.execute("""INSERT INTO tokens(token) VALUES (%s)""", (token, ))
+            self.conn.commit()
+            return True
+        except:
+            return False
+
+    def give_tokens(self):
+        try:
+            self.cur.execute("""SELECT token FROM tokens WHERE used = FALSE""")
+            tokens = self.cur.fetchall()
+            tokens = [i[0] for i in tokens]
+            return tokens
+        except:
+            return "empty"
+    def use_token(self, token):
+        self.cur.execute("""UPDATE tokens
+        SET used = TRUE 
+        WHERE token = %s""", (token,))
+        self.conn.commit()
