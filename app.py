@@ -99,13 +99,14 @@ def main():
     user_name = current_user.id
     bd = BD()
     trenings = bd.get_trening(user_name)
+    role = bd.get_role(user_name)
     for i in range(len(trenings)):
         trenings[i] = str(trenings[i][1])[:10]
     trenings_dict = {}
     for i in  trenings:
         trenings_dict[i] = trenings_dict.get(i, 0) + 1
     types = bd.get_typs(user_name)
-    return render_template('main.html', trenings=json.dumps(trenings_dict), types=types )
+    return render_template('main.html', trenings=json.dumps(trenings_dict), types=types, role = role )
 
 @app.route('/trainings/<trening_date>', methods=['POST', 'GET'])
 @login_required
@@ -165,7 +166,7 @@ def logout():
 @app.route('/delete_exercise', methods=['POST'])
 @login_required
 def delete_exercise():
-    if request.method == 'POST':
+    if request.method == 'POST' and check_role():
         exercese_id = request.form['exercese_id']
         trening_date = request.form['trening_date']
         bd = BD()
@@ -175,11 +176,12 @@ def delete_exercise():
 @app.route('/add_exercise', methods=['POST', 'GET'])
 @login_required
 def add_exercise_type():
-    if request.method == "POST":
+    bd = BD()
+    user_name = current_user.id
+    if request.method == "POST" and bd.get_role(user_name):
         name = request.form['Ex_type']
         description = request.form['Description']
         file = request.files['image']
-        bd = BD()
         if file and allowed_file(file.filename):
             f_format = file.filename.rsplit('.',1)[1]
             file_name = f'{name}{str(datetime.date.today())}.{f_format}'
@@ -199,49 +201,62 @@ def show_all_exercise():
 @app.route('/edit_type/<trening_type_id>', methods=['POST', 'GET'])
 def edit_type(trening_type_id):
     bd = BD()
-    ex_type = bd.get_typs(type_id = trening_type_id)[0]
-    if request.method == 'POST':
-        name = request.form['Ex_type']
-        description = request.form['Description']
-        file = request.files['image']
-        if file and allowed_file(file.filename):
-            f_format = file.filename.rsplit('.',1)[1]
-            file_name = f'{name}{str(datetime.date.today())}.{f_format}'
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
-            file.save(file_path)
-            bd.update_type(trening_type_id, name, description, file_name, file_path)
-            return redirect('/show_all_exercise')
+    user_name = current_user.id
+    if bd.get_role(user_name):
+        ex_type = bd.get_typs(type_id = trening_type_id)[0]
+        if request.method == 'POST' and bd.get_role(user_name):
+            name = request.form['Ex_type']
+            description = request.form['Description']
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                f_format = file.filename.rsplit('.',1)[1]
+                file_name = f'{name}{str(datetime.date.today())}.{f_format}'
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+                file.save(file_path)
+                bd.update_type(trening_type_id, name, description, file_name, file_path)
+                return redirect('/show_all_exercise')
 
-    return render_template('edit_exercise_type.html', type=ex_type)
+        return render_template('edit_exercise_type.html', type=ex_type)
+    else:
+        return render_template('you_dont_have_rights.html')
 
 @app.route('/admin', methods=['POST', 'GET'])
 def admin():
     user_name = current_user.id
-    if user_name == 'Maksim':
-        return render_template('admin.html')
+    bd = BD()
+    if bd.get_role(user_name):
+        if request.method == 'POST':
+            user_name = request.form['user_name']
+            role = request.form['new_role']
+            bd.set_role(user_name, role)
+            return redirect(url_for('main'))
+        users = bd.get_users()
+        return render_template('admin.html', users = users)
     else:
-        return abort(404)
+        return render_template('you_dont_have_rights.html')
 
 @app.route("/generate-token", methods=["GET"])
 def generate_token():
     user_name = current_user.id
-    if user_name == 'Maksim':
+    bd = BD()
+    if bd.get_role(user_name):
         bd = BD()
         token = secrets.token_hex(16)
         bd.add_token(token)
         return jsonify({"token": token})
     else:
-        return abort(404)
+        return render_template('you_dont_have_rights.html')
 
 @app.route("/get-token", methods=["GET"])
 def give_tokens():
     user_name = current_user.id
-    if user_name == 'Maksim':
+    bd = BD()
+    if bd.get_role(user_name):
         bd = BD()
         tokens = bd.give_tokens()
         return jsonify({"token": tuple(tokens)})
     else:
-        return abort(404)
+        return render_template('you_dont_have_rights.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

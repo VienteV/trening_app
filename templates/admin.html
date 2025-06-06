@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Генератор токена</title>
+    <title>Админ-панель</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,75 +11,111 @@
             color: #1a3e1a;
             margin: 0;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
         .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .panel {
             background-color: #e0f0e0;
             border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 8px rgba(0, 80, 0, 0.2);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 {
-            color: #2d5a2d;
+            padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 80, 0, 0.1);
         }
-        button {
+        h1, h2 {
+            color: #2d5a2d;
+        }
+        button, input[type="submit"] {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            margin: 5px 0;
         }
-        button:hover {
+        button:hover, input[type="submit"]:hover {
             background-color: #45a049;
         }
-        #token-display {
-            margin: 20px 0;
+        select, input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #a5d6a7;
+            border-radius: 4px;
+        }
+        .result-box {
             padding: 10px;
             background-color: #d0e8d0;
             border-radius: 5px;
+            margin-top: 10px;
             word-break: break-all;
-            font-family: monospace;
         }
-        .hidden {
-            display: none;
+        .danger {
+            background-color: #f44336;
+        }
+        .danger:hover {
+            background-color: #d32f2f;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔑 Генератор токена</h1>
-        <button id="generate-btn">Сгенерировать токен</button>
-        <button id="show-btn">Посмотреть свободные токены</button>
-        <div id="token-display" class="hidden"></div>
+        <h1>🔑 Админ-панель</h1>
+
+        <!-- Панель генерации токенов (как в исходной версии) -->
+        <div class="panel">
+            <h2>Генератор токенов</h2>
+            <button onclick="generateToken()">Сгенерировать токен</button>
+            <button onclick="showTokens()">Показать токены</button>
+            <div id="tokenResult" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Панель управления пользователями (упрощенная через POST-формы) -->
+        <div class="panel">
+            <h2>Управление пользователями</h2>
+
+            <form method="POST" action="">
+                <h3>Изменить роль</h3>
+                <select name="user_name" required>
+                    <option value="">-- Выберите пользователя --</option>
+                    {% for user in users %}
+                    <option value='{{ user.name }}'>{{ user.name }} ({{ user.role }})</option>
+                    {% endfor %}
+                </select>
+
+                <select name="new_role" required>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <input type="submit" value="Изменить роль">
+            </form>
+
+
+            {% if message %}
+            <div class="result-box">{{ message }}</div>
+            {% endif %}
+        </div>
     </div>
 
     <script>
-        document.getElementById("generate-btn").addEventListener("click", async () => {
-            const response = await fetch("/generate-token");
+        // Функции для работы с токенами (как в исходной версии)
+        async function generateToken() {
+            const response = await fetch('/generate-token');
             const data = await response.json();
+            document.getElementById('tokenResult').textContent = `Новый токен: ${data.token}`;
+            document.getElementById('tokenResult').style.display = 'block';
+        }
 
-            const tokenDisplay = document.getElementById("token-display");
-            tokenDisplay.textContent = `Ваш токен: ${data.token}`;
-            tokenDisplay.classList.remove("hidden");
-        });
-        document.getElementById("show-btn").addEventListener("click", async () => {
-            const response = await fetch("/get-token");
+        async function showTokens() {
+            const response = await fetch('/get-token');
             const data = await response.json();
-
-            const tokenDisplay = document.getElementById("token-display");
-            tokenDisplay.textContent = `Ваш токен: ${data.token}`;
-            tokenDisplay.classList.remove("hidden");
-        });
+            document.getElementById('tokenResult').textContent = `Доступные токены: ${data.tokens.join(', ')}`;
+            document.getElementById('tokenResult').style.display = 'block';
+        }
     </script>
 </body>
 </html>
