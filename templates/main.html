@@ -164,6 +164,9 @@
 <body>
     <div class="header">
         <a href="/logout">Выйти</a>
+        {% if role %}
+            <a href="/admin">Admin</a>
+        {% endif %}
     </div>
     <div class="container">
         <div class="sidebar">

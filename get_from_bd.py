@@ -183,3 +183,23 @@ class BD:
         SET used = TRUE 
         WHERE token = %s""", (token,))
         self.conn.commit()
+
+    def get_role(self, user_name):
+        self.cur.execute("""SELECT role FROM users WHERE user_name = %s""", (user_name,))
+        role = self.cur.fetchone()
+        print(role)
+        if role[0] == 'admin':
+            return True
+        else:
+            return False
+
+    def get_users(self):
+        self.cur.execute("""SELECT user_name, role FROM users""")
+        users = self.cur.fetchall()
+        users = [{'name': i[0], 'role': i[1]} for i in users ]
+        return users
+
+    def set_role(self, user_name, role):
+        self.cur.execute(("""UPDATE users SET role = %s 
+        WHERE user_name = %s"""), (role, user_name))
+        self.conn.commit()
