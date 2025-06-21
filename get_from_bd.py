@@ -203,3 +203,21 @@ class BD:
         self.cur.execute(("""UPDATE users SET role = %s 
         WHERE user_name = %s"""), (role, user_name))
         self.conn.commit()
+
+    def delete_exercese_type(self, exercese_type_id):
+        try:
+            self.cur.execute("""DELETE FROM exercese_type WHERE type_id = %s""", (exercese_type_id, ))
+        except:
+            self.conn.rollback()
+            try:
+                self.cur.execute("""SELECT exercese_id FROM exercese WHERE type_id = %s""", (exercese_type_id,))
+                exercese_ids = tuple(i[0] for i in self.cur.fetchall())
+                self.cur.execute("""DELETE FROM repetition WHERE exercese_id IN %s""", (exercese_ids, ))
+                self.cur.execute("""DELETE FROM exercese WHERE type_id = %s""", (exercese_type_id,))
+                self.cur.execute("""DELETE FROM exercese_type WHERE type_id = %s""", (exercese_type_id,))
+            except Exception as e:
+                print(e)
+                self.conn.rollback()
+                return False
+        self.conn.commit()
+        return True

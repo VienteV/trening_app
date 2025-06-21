@@ -216,7 +216,7 @@ def edit_type(trening_type_id):
                 bd.update_type(trening_type_id, name, description, file_name, file_path)
                 return redirect('/show_all_exercise')
 
-        return render_template('edit_exercise_type.html', type=ex_type)
+        return render_template('edit_exercise_type.html', type=ex_type, trening_type_id= trening_type_id)
     else:
         return render_template('you_dont_have_rights.html')
 
@@ -257,6 +257,21 @@ def give_tokens():
         return jsonify({"token": tuple(tokens)})
     else:
         return render_template('you_dont_have_rights.html')
+
+@app.route("/dell_exercise_type/<exercise_type_id>", methods=["POST", "GET"])
+def dell_exercise_type(exercise_type_id):
+    user_name = current_user.id
+    bd = BD()
+    if bd.get_role(user_name):
+        if request.method == 'POST':
+            if bd.delete_exercese_type(exercise_type_id):
+                return redirect(url_for('main'))
+            else:
+                return render_template('you_dont_have_rights.html')
+        return render_template('dell_exercise_type.html')
+    else:
+        return render_template('you_dont_have_rights.html')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

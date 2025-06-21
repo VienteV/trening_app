@@ -92,26 +92,9 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3>Add Exercise Type</h3>
-
-        <!-- Alert placeholders -->
-        <!-- <div class="alert alert-success">Success message</div> -->
-        <!-- <div class="alert alert-error">Error message</div> -->
-
-        <form method="POST" enctype="multipart/form-data" >
-            <label for="Ex_type">Exercise:</label>
-            <input type="text" id="Ex_type" name="Ex_type" value="{{type[1]}}" required>
-
-            <label for="Description">Description:</label>
-            <input type="text" id="Description" name="Description" value="{{type[2]}}" required>
-
-            <label for="image">Add image:</label>
-            <input type="file" id="image" name="image" accept="image/*">
-
-            <button type="submit">Create</button>
+        <form method="POST" >
+            <button type="submit">Сonfirmation of deletion</button>
         </form>
-        <a href="/dell_exercise_type/{{trening_type_id}}" class="link">Del exercise </a>
         <a href="/" class="link">Back to Main</a>
     </div>
 </body>
