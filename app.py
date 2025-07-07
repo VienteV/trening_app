@@ -4,7 +4,7 @@ import secrets
 import os
 import time
 import psycopg2
-from flask import Flask, render_template, request, redirect, flash, url_for, get_flashed_messages, abort, jsonify
+from flask import Flask, render_template, request, redirect, flash, url_for, get_flashed_messages, abort, jsonify, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from bcrypt import hashpw, gensalt, checkpw
 import configparser
@@ -15,7 +15,7 @@ config.read('config')
 
 app = Flask(__name__, static_url_path='/static/')
 app.secret_key = config.get('data', 'secret_key')
-app.config['UPLOAD_FOLDER'] = 'static/images'
+app.config['UPLOAD_FOLDER'] = 'static/'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpg', 'gif'}
 
 def allowed_file(file_name):
@@ -166,7 +166,9 @@ def logout():
 @app.route('/delete_exercise', methods=['POST'])
 @login_required
 def delete_exercise():
-    if request.method == 'POST' and check_role():
+    bd = BD()
+    user_name = current_user.id
+    if request.method == 'POST' and bd.get_role(user_name):
         exercese_id = request.form['exercese_id']
         trening_date = request.form['trening_date']
         bd = BD()
@@ -185,7 +187,7 @@ def add_exercise_type():
         if file and allowed_file(file.filename):
             f_format = file.filename.rsplit('.',1)[1]
             file_name = f'{name}{str(datetime.date.today())}.{f_format}'
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'] + 'images', file_name)
             file.save(file_path)
             bd.create_type(name, description, file_name, file_path)
         else:
@@ -272,6 +274,41 @@ def dell_exercise_type(exercise_type_id):
     else:
         return render_template('you_dont_have_rights.html')
 
+@app.route("/files", methods=["POST", "GET"])
+def give_take_files():
+    user_name = current_user.id
+    bd = BD()
+    if bd.get_role(user_name):
+        if request.method == 'POST':
+            file = request.files['file']
+            if file:
+                file_name = file.filename
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', file_name)
+                file.save(file_path)
+        files = []
+        for filename in os.listdir(app.config['UPLOAD_FOLDER'] + 'upload_files'):
+            path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', filename)
+            if os.path.isfile(path):
+                files.append({
+                    'name': filename,
+                    'size': os.path.getsize(path)
+                })
+            print(files)
+        return render_template('file_upload.html', files=files)
+    else:
+        return render_template('you_dont_have_rights.html')
+@app.route('/download/<filename>')
+def download_file(filename):
+    user_name = current_user.id
+    bd = BD()
+    if bd.get_role(user_name):
+        return send_from_directory(
+            app.config['UPLOAD_FOLDER'] + 'upload_files',
+            filename,
+            as_attachment=True
+        )
+    else:
+        return render_template('you_dont_have_rights.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

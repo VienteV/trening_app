@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload and Download</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .upload-section, .files-section { margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .file-size { text-align: right; }
+    </style>
+</head>
+<body>
+    <h1>Файловый менеджер</h1>
+
+    <div class="upload-section">
+        <h2>Загрузить файл</h2>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <button type="submit">Загрузить</button>
+        </form>
+    </div>
+
+    <div class="files-section">
+        <h2>Загруженные файлы</h2>
+        {% if files %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя файла</th>
+                    <th class="file-size">Размер (байт)</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file.name }}</td>
+                    <td class="file-size">{{ file.size }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', filename=file.name) }}" download>Скачать</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Нет загруженных файлов</p>
+        {% endif %}
+    </div>
+</body>
+</html>
