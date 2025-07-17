@@ -12,8 +12,8 @@
     </style>
 </head>
 <body>
+    <a href="{{ url_for('main')}}"> Main </a>
     <h1>Файловый менеджер</h1>
-
     <div class="upload-section">
         <h2>Загрузить файл</h2>
         <form method="post" enctype="multipart/form-data">
@@ -40,6 +40,7 @@
                     <td class="file-size">{{ file.size }}</td>
                     <td>
                         <a href="{{ url_for('download_file', filename=file.name) }}" download>Скачать</a>
+                        <a href="{{ url_for('del_file', filename=file.name) }}" del>del</a>
                     </td>
                 </tr>
                 {% endfor %}

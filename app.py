@@ -195,12 +195,14 @@ def add_exercise_type():
     return render_template('add_exercise_type.html')
 
 @app.route('/show_all_exercise', methods=['POST', 'GET', 'UPDATE'])
+@login_required
 def show_all_exercise():
     bd = BD()
     ex_types = bd.get_typs()
     return render_template('all_exercise.html', types=ex_types)
 
 @app.route('/edit_type/<trening_type_id>', methods=['POST', 'GET'])
+@login_required
 def edit_type(trening_type_id):
     bd = BD()
     user_name = current_user.id
@@ -223,6 +225,7 @@ def edit_type(trening_type_id):
         return render_template('you_dont_have_rights.html')
 
 @app.route('/admin', methods=['POST', 'GET'])
+@login_required
 def admin():
     user_name = current_user.id
     bd = BD()
@@ -238,6 +241,7 @@ def admin():
         return render_template('you_dont_have_rights.html')
 
 @app.route("/generate-token", methods=["GET"])
+@login_required
 def generate_token():
     user_name = current_user.id
     bd = BD()
@@ -250,6 +254,7 @@ def generate_token():
         return render_template('you_dont_have_rights.html')
 
 @app.route("/get-token", methods=["GET"])
+@login_required
 def give_tokens():
     user_name = current_user.id
     bd = BD()
@@ -261,6 +266,7 @@ def give_tokens():
         return render_template('you_dont_have_rights.html')
 
 @app.route("/dell_exercise_type/<exercise_type_id>", methods=["POST", "GET"])
+@login_required
 def dell_exercise_type(exercise_type_id):
     user_name = current_user.id
     bd = BD()
@@ -275,6 +281,7 @@ def dell_exercise_type(exercise_type_id):
         return render_template('you_dont_have_rights.html')
 
 @app.route("/files", methods=["POST", "GET"])
+@login_required
 def give_take_files():
     user_name = current_user.id
     bd = BD()
@@ -297,7 +304,9 @@ def give_take_files():
         return render_template('file_upload.html', files=files)
     else:
         return render_template('you_dont_have_rights.html')
+
 @app.route('/download/<filename>')
+@login_required
 def download_file(filename):
     user_name = current_user.id
     bd = BD()
@@ -307,6 +316,17 @@ def download_file(filename):
             filename,
             as_attachment=True
         )
+    else:
+        return render_template('you_dont_have_rights.html')
+
+@app.route('/del/<filename>')
+@login_required
+def del_file(filename):
+    user_name = current_user.id
+    bd = BD()
+    if bd.get_role(user_name):
+        os.remove(app.config['UPLOAD_FOLDER'] + 'upload_files' + '/' + filename)
+        return redirect(url_for('give_take_files'))
     else:
         return render_template('you_dont_have_rights.html')
 
