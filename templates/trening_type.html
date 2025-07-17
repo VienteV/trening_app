@@ -8,9 +8,44 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Подключаем плагин для работы с временными данными -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            color: #24292e;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .header a, .header button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .header a:hover, .header button:hover {
+            background-color: #c82333;
+        }
+         </style>
 </head>
 <body>
-    <h1>График по датам</h1>
+    <div class="header">
+        <a href="{{ url_for('main') }}">Main</a>
+    </div>
+    <h1>График по датам {{name}}</h1>
     <!-- Контейнер для графика -->
     <div style="width: 800px; height: 400px;">
         <canvas id="combinedChart"></canvas>

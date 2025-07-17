@@ -91,12 +91,12 @@ class BD:
         now = datetime.now()
         delta = timedelta(days=90)
         date = now - delta
-        self.cur.execute("""SELECT update_time, SUM(amount), MAX(extra_weight)
+        self.cur.execute("""SELECT update_time, SUM(amount), MAX(extra_weight), name
         FROM exercese JOIN trening USING(trening_id)
         JOIN exercese_type USING(type_id)
         JOIN repetition USING(exercese_id)
         WHERE type_id = %s AND update_time > %s AND user_name = %s
-        GROUP BY update_time
+        GROUP BY update_time, name
         ORDER BY update_time""", (type_id, date, user_name))
         repetitions = self.cur.fetchall()
         return repetitions

@@ -93,7 +93,11 @@
         {% for type in types %}
         <div class="type-card">
             <!-- Место для картинки (замените src на реальный путь к изображению) -->
+            {% if  type[4] %}
             <img src="{{ type[4] }}" alt="{{ type[3] }}" class="type-image">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/you_dont_have_rights.jpg') }}" alt="{{ type[3] }}" class="type-image">
+            {% endif %}
             <div class="type-content">
                 <h2 class="type-name"><a href="/edit_type/{{type[0]}}">{{ type[1]}}</a></h2>
                 <p class="type-description">{{ type[2] }}</p>
