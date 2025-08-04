@@ -37,6 +37,28 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+def get_log(request, password=None, username=None, success='No'):
+    log = {'ip': request.remote_addr}
+    if request.method == 'POST':
+        log['action'] = 'tried to login'
+        log['username'] = username
+        log['success'] = success
+    else:
+        log['action'] =  'just open'
+
+    with open('log.json', 'r') as file:
+        content = file.read()
+        if content:
+            info = json.loads(content)
+            info = dict(info)
+        else:
+            info = {}
+    with open('log.json', 'w') as file:
+        time_now = datetime.datetime.now()
+        info[str(time_now)] = log
+        json.dump(info, file)
+
+
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
@@ -84,12 +106,15 @@ def login():
         cur.execute("""SELECT password FROM users WHERE user_name = %s""", (username,))
         hashed = cur.fetchone()[0]
         if len(hashed) > 0 and verify_password(password, hashed):
+            get_log(request, username=username, password=password, success='Yes')
             user = User(username)
             login_user(user)
             flash('Вы успешно вошли в систему!', 'success')
             return redirect(url_for('main'))
         else:
+            get_log(request, username=username, password=password)
             flash('Неверное имя пользователя или пароль', 'error')
+    get_log(request)
 
     return render_template('login.html')
 
@@ -331,5 +356,22 @@ def del_file(filename):
     else:
         return render_template('you_dont_have_rights.html')
 
+@app.route('/show_logs', methods=['POST', 'GET'])
+@login_required
+def show_logs():
+    user_name = current_user.id
+    bd = BD()
+    if bd.get_role(user_name):
+        with open('log.json', 'r') as file:
+            file = file.read()
+            if file:
+                info = json.loads(file)
+                info = dict(info)
+                info = reversed(sorted(info.items(), key=lambda a: a[0]))
+            else:
+                info = []
+        return render_template('show_logs.html', logs=info)
+    else:
+        return render_template('you_dont_have_rights.html')
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
