@@ -2,3 +2,4 @@
 config
 .idea
 play_with_bd.py__ptcache__
+log.json

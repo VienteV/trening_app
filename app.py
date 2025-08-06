@@ -178,8 +178,12 @@ def trening_type_info(trening_type_id):
     amounts = [i[1] for i in info]
     weight = [i[2] for i in info]
     name = info[0][-1]
-
-    return render_template('trening_type.html', labels=labels, amounts=amounts, weight=weight, name = name )
+    max_weight = max(weight)
+    max_amount = max(amounts)
+    if max_weight:
+        max_weight_attempt = max(filter(lambda a: a[0] == max_weight, tuple(zip(weight, amounts))), key = lambda a: a[1])
+    max_amount_attempt = max(filter(lambda a: a[1] == max_amount, tuple(zip(weight, amounts))), key = lambda a: a[0])
+    return render_template('trening_type.html', labels=labels, amounts=amounts, weight=weight, name = name, max_weight_attempt=max_weight_attempt, max_amount_attempt=max_amount_attempt )
 
 @app.route('/logout')
 @login_required
