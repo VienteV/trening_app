@@ -45,14 +45,16 @@ def get_log(request, password=None, username=None, success='No'):
         log['success'] = success
     else:
         log['action'] =  'just open'
-
-    with open('log.json', 'r') as file:
-        content = file.read()
-        if content:
-            info = json.loads(content)
-            info = dict(info)
-        else:
-            info = {}
+    try:
+        with open('log.json', 'r') as file:
+            content = file.read()
+            if content:
+                info = json.loads(content)
+                info = dict(info)
+            else:
+                info = {}
+    except:
+        info = {}
     with open('log.json', 'w') as file:
         time_now = datetime.datetime.now()
         info[str(time_now)] = log
@@ -178,12 +180,8 @@ def trening_type_info(trening_type_id):
     amounts = [i[1] for i in info]
     weight = [i[2] for i in info]
     name = info[0][-1]
-    max_weight = max(weight)
-    max_amount = max(amounts)
-    if max_weight:
-        max_weight_attempt = max(filter(lambda a: a[0] == max_weight, tuple(zip(weight, amounts))), key = lambda a: a[1])
-    max_amount_attempt = max(filter(lambda a: a[1] == max_amount, tuple(zip(weight, amounts))), key = lambda a: a[0])
-    return render_template('trening_type.html', labels=labels, amounts=amounts, weight=weight, name = name, max_weight_attempt=max_weight_attempt, max_amount_attempt=max_amount_attempt )
+    best = bd.get_best_attemps(trening_type_id, user_name)
+    return render_template('trening_type.html', labels=labels, amounts=amounts, weight=weight, name = name, best=best )
 
 @app.route('/logout')
 @login_required
@@ -377,5 +375,6 @@ def show_logs():
         return render_template('show_logs.html', logs=info)
     else:
         return render_template('you_dont_have_rights.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

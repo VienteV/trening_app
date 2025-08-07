@@ -101,6 +101,26 @@ class BD:
         repetitions = self.cur.fetchall()
         return repetitions
 
+    def get_best_attemps(self, type_id, user_name):
+        self.cur.execute("""SELECT amount, extra_weight FROM exercese
+                        JOIN trening USING(trening_id)
+                        JOIN exercese_type USING(type_id)
+                        JOIN repetition USING(exercese_id)
+                        WHERE type_id = %s AND user_name = %s
+                        ORDER BY amount DESC, extra_weight DESC
+                        LIMIT 1""", (type_id, user_name))
+        best_amount = self.cur.fetchone()
+        self.cur.execute("""SELECT amount, extra_weight FROM exercese
+                JOIN trening USING(trening_id)
+                JOIN exercese_type USING(type_id)
+                JOIN repetition USING(exercese_id)
+                WHERE type_id = %s AND user_name = %s
+                ORDER BY extra_weight DESC, amount DESC
+                LIMIT 1""", (type_id, user_name))
+        best_weight = self.cur.fetchone()
+        print({'best_amount': {'amount':best_amount[0], 'weight':best_amount[1]}, 'best_weight': {'amount':best_weight[0], 'weight':best_weight[1]}})
+        return {'best_amount': {'amount':best_amount[0], 'weight':best_amount[1]}, 'best_weight': {'amount':best_weight[0], 'weight':best_weight[1]}}
+
     def create_type(self, name, description='', file_name = '', file_path = ''):
         try:
             self.cur.execute("""INSERT INTO exercese_type(name, description, filename, filepath) 

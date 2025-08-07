@@ -50,8 +50,8 @@
     <div style="width: 800px; height: 400px;">
         <canvas id="combinedChart"></canvas>
     </div>
-Лучший подход по весу: вес = {{max_weight_attempt[0]}} на количество раз {{max_weight_attempt[1]}}</br>
-Лучший подход по количеству: вес = {{max_amount_attempt[0]}} на количество раз {{max_amount_attempt[1]}}
+Лучший подход по весу: вес = {{best['best_weight']['weight']}} на количество раз {{best['best_weight']['amount']}}</br>
+Лучший подход по количеству: вес = {{best['best_amount']['weight']}} на количество раз {{best['best_amount']['amount']}}
 
     <script>
         // Данные, которые передаются из Python
