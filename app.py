@@ -311,16 +311,27 @@ def dell_exercise_type(exercise_type_id):
 @app.route("/files", methods=["POST", "GET"])
 @login_required
 def give_take_files():
+
+    def get_full_size():
+        size = 0
+        for filename in os.listdir(app.config['UPLOAD_FOLDER'] + 'upload_files'):
+            path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', filename)
+            size +=  os.path.getsize(path)
+        return size // 1024 ** 2
+
     user_name = current_user.id
     bd = BD()
     if bd.get_role(user_name):
+        files = []
         if request.method == 'POST':
+            print(get_full_size())
+            if get_full_size() > 10000:
+                return render_template('no_place.html')
             file = request.files['file']
             if file:
                 file_name = file.filename
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', file_name)
                 file.save(file_path)
-        files = []
         for filename in os.listdir(app.config['UPLOAD_FOLDER'] + 'upload_files'):
             path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', filename)
             if os.path.isfile(path):
@@ -328,7 +339,8 @@ def give_take_files():
                     'name': filename,
                     'size': os.path.getsize(path)
                 })
-            print(files)
+
+
         return render_template('file_upload.html', files=files)
     else:
         return render_template('you_dont_have_rights.html')
