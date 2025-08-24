@@ -220,6 +220,8 @@ def add_exercise_type():
             bd.create_type(name, description, file_name, file_path)
         else:
             bd.create_type(name, description)
+        return redirect(url_for('add_exercise_type'))
+
     return render_template('add_exercise_type.html')
 
 @app.route('/show_all_exercise', methods=['POST', 'GET', 'UPDATE'])
@@ -324,7 +326,6 @@ def give_take_files():
     if bd.get_role(user_name):
         files = []
         if request.method == 'POST':
-            print(get_full_size())
             if get_full_size() > 10000:
                 return render_template('no_place.html')
             file = request.files['file']
@@ -332,16 +333,22 @@ def give_take_files():
                 file_name = file.filename
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', file_name)
                 file.save(file_path)
+            return redirect(url_for('give_take_files'))
+
         for filename in os.listdir(app.config['UPLOAD_FOLDER'] + 'upload_files'):
             path = os.path.join(app.config['UPLOAD_FOLDER'] + 'upload_files', filename)
             if os.path.isfile(path):
-                files.append({
-                    'name': filename,
-                    'size': os.path.getsize(path)
-                })
+                files.append([filename, os.path.getsize(path), datetime.datetime.fromtimestamp((os.path.getmtime(path)))])
+        d_files = []
+        for i in sorted(files, key = lambda a: a[2], reverse=True):
+            d_files.append({
+             'name': i[0],
+                'size':i[1],
+                'timestamp':i[2].strftime("%H:%M:%S %d.%m.%Y")
+            }
+            )
 
-
-        return render_template('file_upload.html', files=files)
+        return render_template('file_upload.html', files=d_files)
     else:
         return render_template('you_dont_have_rights.html')
 

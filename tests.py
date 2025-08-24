@@ -20,6 +20,13 @@ class TestForDBoperationd(unittest.TestCase):
         cls.cur = cls.test_conn.cursor()
         cls.bd.conn = cls.test_conn
         cls.bd.cur = cls.cur
+        cls.bd.cur.execute("""DROP TABLE repetition""")
+        cls.bd.cur.execute("""DROP TABLE exercese""")
+        cls.bd.cur.execute("""DROP TABLE trening""")
+        cls.bd.cur.execute("""DROP TABLE exercese_type""")
+        cls.bd.cur.execute("""DROP TABLE users""")
+        cls.bd.conn.commit()
+
         cls.cur.execute("""CREATE TABLE IF NOT EXISTS users (
                 user_name VARCHAR(256) UNIQUE)""")
 

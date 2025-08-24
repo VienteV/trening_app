@@ -30,6 +30,7 @@
                 <tr>
                     <th>Имя файла</th>
                     <th class="file-size">Размер (байт)</th>
+                    <th class="file-size"> Когда был загружен </th>
                     <th>Действие</th>
                 </tr>
             </thead>
@@ -38,6 +39,7 @@
                 <tr>
                     <td>{{ file.name }}</td>
                     <td class="file-size">{{ file.size }}</td>
+                    <td class="file-size">{{ file.timestamp }}</td>
                     <td>
                         <a href="{{ url_for('download_file', filename=file.name) }}" download>Скачать</a>
                         <a href="{{ url_for('del_file', filename=file.name) }}" del>del</a>
