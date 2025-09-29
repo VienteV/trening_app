@@ -93,6 +93,7 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    bd = BD()
     if request.method == 'POST':
         timestamp = int(request.form['timestamp'])
         cur_time = int(time.time() * 1000)
@@ -102,12 +103,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        conn = psycopg2.connect(dbname='trening_app', user='maksim',
-                                password=config.get('data', 'dbpassword'), host='localhost')
-        cur = conn.cursor()
-        cur.execute("""SELECT password FROM users WHERE user_name = %s""", (username,))
-        hashed = cur.fetchone()[0]
-        if len(hashed) > 0 and verify_password(password, hashed):
+        if bd.check_password(username, password):
             get_log(request, username=username, password=password, success='Yes')
             user = User(username)
             login_user(user)
@@ -395,5 +391,22 @@ def show_logs():
     else:
         return render_template('you_dont_have_rights.html')
 
+
+@app.route('/password_change', methods=['GET', 'POST'])
+def password_change():
+    user_name = current_user.id
+    if request.method == 'POST':
+        bd = BD()
+        password = request.form['old_password']
+        password_new1 = request.form['new_password1']
+        password_new2 = request.form['new_password2']
+
+        if password_new1  == password_new2 and bd.check_password(user_name, password):
+
+            hased_password = hash_password(password_new1).decode()
+            bd.update_password(user_name, hased_password)
+            return redirect(url_for('password_change'))
+    return render_template('/password_change.html')
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

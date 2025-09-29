@@ -4,6 +4,8 @@ from calendar import month
 import psycopg2
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from bcrypt import hashpw, gensalt, checkpw
+
 
 @dataclass
 class Repetition:
@@ -27,6 +29,22 @@ class BD:
     conn = psycopg2.connect(dbname='trening_app', user='maksim',
                             password=config.get('data', 'dbpassword'), host='localhost')
     cur = conn.cursor()
+
+    def check_password(self, user_name, password):
+
+        def verify_password(password, hashed):
+            return checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+        self.cur.execute("""SELECT password FROM users WHERE user_name = %s""", (user_name,))
+        hashed = self.cur.fetchone()[0]
+        if len(hashed) > 0 and verify_password(password, hashed):
+            return True
+        else:
+            return False
+
+    def update_password(self, user_name, new_password):
+        self.cur.execute("""UPDATE users SET password = %s WHERE user_name = %s""", (new_password, user_name))
+        self.conn.commit()
 
     def get_exercese_for_trening(self, trening_id):
         self.cur.execute("""SELECT exercese_id FROM exercese 
