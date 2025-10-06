@@ -271,12 +271,16 @@ class BD:
         return True
 
     def get_cards(self):
+        cards = None
         try:
             self.cur.execute("""SELECT * FROM cards""")
             cards = self.cur.fetchall()
         except:
             self.conn.rollback()
-        cards = [Card(*i) for i in cards]
+        if cards:
+            cards = [Card(*i) for i in cards]
+        else:
+            return []
         return cards
 
     def set_point_to_card(self, card_id, points):
@@ -305,10 +309,15 @@ class BD:
         try:
             self.cur.execute("""SELECT 1 FROM cards""")
         except:
-            self.cur.execute("""CREATE TABLE IF NOT EXISTS cards(
-            	card_id int UNIQUE PRIMARY KEY 
-            	GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
-            	category VARCHAR(20) CHECK (category IN ('python', 'sql', 'git', 'networking', 'other')),
-            	main_side VARCHAR(256) UNIQUE,
-            	other_side TEXT,
-            	points INT DEFAULT(0)""")
+            try:
+                self.cur.execute("""CREATE TABLE IF NOT EXISTS cards(
+                                    card_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
+                                    category VARCHAR(20) CHECK (category IN ('python', 'sql', 'git', 'networking', 'other')),
+                                    main_side VARCHAR(256) UNIQUE,
+                                    other_side TEXT,
+                                    points INT DEFAULT 0
+                                    );""")
+                self.conn.commit()
+            except Exception as e:
+                print(e)
+                self.conn.rollback()

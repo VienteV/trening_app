@@ -417,10 +417,13 @@ def show_card():
     bd = BD()
     bd.check_cards()
     cards = bd.get_cards()
-    if random.randint(0,1):
-        card = cards[0]
+    if cards:
+        if random.randint(0,1):
+            card = cards[0]
+        else:
+            card = random.choice(cards)
     else:
-        card = random.choice(cards)
+        card = []
     return render_template('cards.html', card=card)
 
 @app.route('/card_rated', methods=['POST'])
