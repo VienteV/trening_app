@@ -1,4 +1,5 @@
 import configparser
+import json
 from calendar import month
 
 import psycopg2
@@ -20,6 +21,15 @@ class Exercese:
     description: str
     repetitions: list
     filepath: str
+
+@dataclass
+class Card:
+    card_id: int
+    category: str
+    main_side: str
+    other_side: str
+    points: int
+
 
 config = configparser.ConfigParser()
 config.read('config')
@@ -259,3 +269,46 @@ class BD:
                 return False
         self.conn.commit()
         return True
+
+    def get_cards(self):
+        try:
+            self.cur.execute("""SELECT * FROM cards""")
+            cards = self.cur.fetchall()
+        except:
+            self.conn.rollback()
+        cards = [Card(*i) for i in cards]
+        return cards
+
+    def set_point_to_card(self, card_id, points):
+        try:
+            self.cur.execute("""UPDATE cards SET points = points + %s WHERE card_id = %s""", (points, card_id))
+            self.conn.commit()
+        except:
+            self.conn.rollback()
+
+
+    def add_cards_from_json(self, file):
+        try:
+            file = json.loads(file)
+            for i in file:
+                self.cur.execute("""SELECT * FROM cards WHERE main_side = %s""", (file[i]['main_side'],))
+                if self.cur.rowcount == 0:
+                    self.cur.execute("""INSERT INTO cards(category, main_side, other_side)
+                    VALUES(%s, %s, %s)""", [file[i]['category'], file[i]['main_side'], file[i]['other_side']])
+                    self.conn.commit()
+                else:
+                    print('уже есть')
+        except Exception as e:
+            print(e)
+
+    def check_cards(self):
+        try:
+            self.cur.execute("""SELECT 1 FROM cards""")
+        except:
+            self.cur.execute("""CREATE TABLE IF NOT EXISTS cards(
+            	card_id int UNIQUE PRIMARY KEY 
+            	GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+            	category VARCHAR(20) CHECK (category IN ('python', 'sql', 'git', 'networking', 'other')),
+            	main_side VARCHAR(256) UNIQUE,
+            	other_side TEXT,
+            	points INT DEFAULT(0)""")

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточки для интервью</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+            height: 400px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-front {
+            background: white;
+            color: #333;
+        }
+
+        .card-back {
+            background: #2c3e50;
+            color: white;
+            transform: rotateY(180deg);
+            text-align: left;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .card-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            width: 100%;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 10px;
+        }
+
+        /* Стили для скроллбара */
+        .card-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .card-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        .card-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .card-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .card-back .card-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .card-back .card-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-back .card-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            flex-shrink: 0;
+            padding: 0 40px;
+        }
+
+        .card-back .hint {
+            color: #ccc;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-next {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-flip {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-flip:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .progress {
+            margin-top: 20px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .card-number {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: #999;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .card-back .card-number {
+            color: #ccc;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .card-container {
+                height: 350px;
+            }
+
+            .card-content {
+                font-size: 1rem;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+
+            .card-face {
+                padding: 30px;
+            }
+
+            .hint {
+                padding: 0 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-container {
+                height: 300px;
+            }
+
+            .card-face {
+                padding: 20px;
+            }
+
+            .card-content {
+                font-size: 0.9rem;
+            }
+
+            .hint {
+                padding: 0 20px;
+                font-size: 0.8rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+         .rating-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-rating {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-correct {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-correct:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-incorrect:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .card-stats {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 0.8rem;
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .card-back .card-stats {
+            color: #ccc;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Стиль для отключенных кнопок во время загрузки */
+        .btn-loading {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* Стили для формы загрузки */
+        .upload-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .json-textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .json-textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .btn-upload {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background: #f57c00;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .example-json {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Форма для загрузки JSON -->
+        <div class="upload-section">
+            <h3>Добавить карточки из JSON</h3>
+            <form method="POST" action="/add_cards" class="upload-form">
+                <textarea
+                    name="cards_json"
+                    class="json-textarea"
+                    placeholder='Введите JSON в формате:&#10;{&#10;  "card1": {&#10;    "category": "python",&#10;    "main_side": "Вопрос?",&#10;    "other_side": "Ответ"&#10;  }&#10;}'
+                    required
+                ></textarea>
+
+                <div class="form-hint">
+                    Формат: {"card_name": {"category": "...", "main_side": "...", "other_side": "..."}}
+                </div>
+
+                <button type="submit" class="btn-upload">📥 Загрузить карточки</button>
+            </form>
+
+            <div class="example-json">
+Пример JSON:
+{
+  "python_gil": {
+    "category": "python",
+    "main_side": "Что такое GIL?",
+    "other_side": "Global Interpreter Lock - механизм в CPython"
+  },
+  "sql_join": {
+    "category": "sql",
+    "main_side": "Виды JOIN в SQL?",
+    "other_side": "INNER, LEFT, RIGHT, FULL OUTER JOIN"
+  }
+}
+            </div>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="card">
+                <div class="card-face card-front">
+                    <div class="card-title">Вопрос</div>
+                    <div class="card-stats">
+                        {% if card and card.points is not none %}
+                            Очков: {{ card.points }}
+                        {% endif %}
+                    </div>
+                    <div class="card-content" id="question">
+                        {% if card and card.main_side %}
+                            {{ card.main_side }}
+                        {% else %}
+                            Вопрос не найден
+                        {% endif %}
+                    </div>
+                    <div class="card-number">1/2</div>
+                    <div class="hint">Нажмите на карточку или кнопку для просмотра ответа</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-title">Ответ</div>
+                    <div class="card-stats">
+                        {% if card and card.points is not none %}
+                            Очков: {{ card.points }}
+                        {% endif %}
+                    </div>
+                    <div class="card-content" id="answer">
+                        {% if card and card.other_side %}
+                            {{ card.other_side | replace('\n', '<br>') | safe }}
+                        {% else %}
+                            Ответ не найден
+                        {% endif %}
+                    </div>
+                    <form id="ratingForm" method="POST" action="/card_rated" class="rating-form">
+                        <input type="hidden" name="card_id" value="{{ card.card_id if card else 0 }}">
+                        <input type="hidden" name="rating" id="ratingInput" value="">
+
+                        <button type="submit" name="action" value="wrong" class="btn-rating btn-incorrect" onclick="setRating(1)">
+                            ❌ Не знал
+                        </button>
+                        <button type="submit" name="action" value="correct" class="btn-rating btn-correct" onclick="setRating(5)">
+                            ✅ Знаю хорошо
+                        </button>
+                    </form>
+                    <div class="card-number">2/2</div>
+                    <div class="hint">Оцените, насколько хорошо помнили ответ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-flip" onclick="flipCard()">Перевернуть карточку</button>
+            <button class="btn btn-next" onclick="nextCard()">Следующий вопрос</button>
+        </div>
+
+        <div class="progress">
+            Карточки для подготовки к интервью
+        </div>
+    </div>
+
+    <script>
+        const card = document.getElementById('card');
+        const ratingForm = document.getElementById('ratingForm');
+        const ratingInput = document.getElementById('ratingInput');
+        let isSubmitting = false;
+
+        function flipCard() {
+            card.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (isSubmitting) return;
+
+            card.style.opacity = '0.7';
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
+        }
+
+        function setRating(rating) {
+            ratingInput.value = rating;
+
+            // Блокируем кнопки от повторных нажатий
+            isSubmitting = true;
+            const buttons = document.querySelectorAll('.btn-rating');
+            buttons.forEach(btn => {
+                btn.classList.add('btn-loading');
+                btn.disabled = true;
+            });
+
+            // Автоматически отправляем форму через короткую задержку
+            setTimeout(() => {
+                ratingForm.submit();
+            }, 100);
+        }
+
+        // Переворот карточки по клику
+        card.addEventListener('click', flipCard);
+
+        // Переворот карточки по пробелу
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                flipCard();
+            }
+
+            // Быстрые клавиши для оценки (только когда карточка перевернута)
+            if (card.classList.contains('flipped')) {
+                if (event.code === 'Digit1') {
+                    event.preventDefault();
+                    setRating(1);
+                }
+                if (event.code === 'Digit5') {
+                    event.preventDefault();
+                    setRating(5);
+                }
+            }
+        });
+
+        // Предотвращаем переворот при клике на скроллбар или кнопки
+        document.querySelectorAll('.card-content, .btn-rating').forEach(element => {
+            element.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import datetime
 import json
+import random
 import secrets
 import os
 import time
@@ -59,6 +60,7 @@ def get_log(request, password=None, username=None, success='No'):
         time_now = datetime.datetime.now()
         info[str(time_now)] = log
         json.dump(info, file)
+
 
 
 class User(UserMixin):
@@ -393,6 +395,7 @@ def show_logs():
 
 
 @app.route('/password_change', methods=['GET', 'POST'])
+@login_required
 def password_change():
     user_name = current_user.id
     if request.method == 'POST':
@@ -408,5 +411,41 @@ def password_change():
             return redirect(url_for('password_change'))
     return render_template('/password_change.html')
 
+@app.route('/cards', methods=['GET'])
+@login_required
+def show_card():
+    bd = BD()
+    bd.check_cards()
+    cards = bd.get_cards()
+    if random.randint(0,1):
+        card = cards[0]
+    else:
+        card = random.choice(cards)
+    return render_template('cards.html', card=card)
+
+@app.route('/card_rated', methods=['POST'])
+@login_required
+def card_rated():
+    bd = BD()
+    card_id = request.form['card_id']
+    points = request.form['rating']
+    bd.set_point_to_card(card_id, points)
+    return redirect(url_for('show_card'))
+
+@app.route('/add_cards', methods=['POST'])
+@login_required
+def add_cards():
+    bd = BD()
+    if request.method == 'POST':
+        try:
+            # Получаем JSON данные из запроса
+            cards_json = request.form.get('cards_json')
+            bd.add_cards_from_json(cards_json)
+        except json.JSONDecodeError as e:
+            flash(f'Ошибка в формате JSON: {e}', 'error')
+        except Exception as e:
+            flash(f'Ошибка при добавлении карточек: {e}', 'error')
+    return redirect(url_for('show_card'))
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)

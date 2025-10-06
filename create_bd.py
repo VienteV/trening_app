@@ -1,8 +1,7 @@
 import psycopg2
 
 import psycopg2
-conn = psycopg2.connect(dbname='trening_app', user='maksim',
-                        password='4132', host='localhost')
+
 cur = conn.cursor()
 
 cur.execute("""CREATE TABLE exercese_type(

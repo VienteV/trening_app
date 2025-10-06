@@ -2,8 +2,7 @@ from psycopg2 import sql
 from datetime import datetime, timedelta
 import random
 import psycopg2
-conn = psycopg2.connect(dbname='trening_app', user='maksim',
-                        password='4132', host='localhost')
+
 cur = conn.cursor()
 
 cur.execute("""ALTER TABLE trening

@@ -60,14 +60,39 @@
         .danger:hover {
             background-color: #d32f2f;
         }
+        .nav-menu {
+            background-color: #2d5a2d;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            transition: background-color 0.3s;
+        }
+        .nav-menu a:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
-<a href="{{ url_for('give_take_files') }}">Files</a>
-<a href="{{ url_for('show_logs') }}">Logs</a>
-<a href="{{ url_for('main')}}"> Main </a>
-<a href="{{ url_for('password_change')}}"> Main </a>
 <body>
     <div class="container">
+        <div class="nav-menu">
+            <a href="{{ url_for('give_take_files') }}">📁 Files</a>
+            <a href="{{ url_for('show_logs') }}">📋 Logs</a>
+            <a href="{{ url_for('main')}}">🏠 Main</a>
+            <a href="{{ url_for('password_change')}}">🔐 Change password</a>
+            <a href="{{ url_for('show_card')}}">💳 Show card</a>
+        </div>
+
         <h1>🔑 Админ-панель</h1>
 
         <!-- Панель генерации токенов (как в исходной версии) -->
@@ -98,7 +123,6 @@
 
                 <input type="submit" value="Изменить роль">
             </form>
-
 
             {% if message %}
             <div class="result-box">{{ message }}</div>

@@ -1,0 +1,34 @@
+{
+  "process_thread": {
+    "question": "What is a process and a thread?",
+    "answer": "Process - can be described as a specific program that is executing.\nThread - exists within a process, is part of it.\n\nProcess is a separate instance of a program with its own memory, resources, and state.\n• Each process works independently of others.\n• They allow bypassing GIL since each process has its own Python interpreter.\n• Suitable for CPU-bound tasks (heavy computations).\n\nThread is a lightweight 'sub-process' running within a process.\n• All threads share the same memory (global variables are accessible to all).\n• GIL blocks parallel execution of Python code, so threads are suitable for I/O-bound tasks (network, files, waiting)."
+  },
+  "testing": {
+    "question": "What is testing for? What types of testing exist?",
+    "answer": "Testing helps avoid various types of errors during development. The most basic example is writing functionality that affects already implemented code. Changes can cause side effects that without tests could be missed in production.\n\nTests are divided by various criteria, we can highlight:\n• Unit testing\n• Integration testing\n• Functional testing\n• System testing\n• Acceptance testing"
+  },
+  "functional_programming": {
+    "question": "What is functional programming?",
+    "answer": "A programming paradigm that was popular before the introduction of OOP. The core idea is based on using mathematical functions.\n\nKey concepts:\n• Pure functions\n• Higher-order functions\n\nPure function is a function that:\n1. Has no side effects (doesn't change global variables, doesn't modify input data)\n2. Always returns the same result for the same arguments (doesn't depend on external state)\n\nHigher-order function is a function that:\n1. Takes another function as an argument\n2. Returns a function as a result"
+  },
+  "python_problems": {
+    "question": "What are the main problems of the Python language?",
+    "answer": "The first thing that should come to mind is GIL. You should explain why it was added in the first place and what limitations it imposes. Also, we shouldn't forget that Python is an interpreted language. Fortunately, there are libraries with functionality written in C.\n\nGIL (Global Interpreter Lock) is a mechanism used in the Python interpreter implementation (CPython) to manage access to Python objects from multiple threads. It is a mutex (lock) that allows only one thread to execute Python bytecode at any given time. This means that even in multi-threaded programs, only one thread can execute Python code simultaneously.\n\nWhy is GIL needed?\nGIL was introduced to simplify memory management in CPython. Python uses reference counting for memory management, and GIL prevents race conditions that could occur if multiple threads simultaneously try to change the reference count of the same object. This makes CPython simpler and more robust in single-threaded and multi-threaded scenarios."
+  },
+  "python_applications": {
+    "question": "In which areas is Python used?",
+    "answer": "Surprisingly, Python wasn't originally designed for web development. You can look up the history of the language creator - it's very interesting.\n\nCurrently, Python is used in:\n• Web development\n• Machine learning\n• Data analysis\n• Scientific computing\n• Automation and scripting\n• Desktop applications\n• Education"
+  },
+  "framework_vs_library": {
+    "question": "What is the difference between a framework and a library?",
+    "answer": "Library - a module containing ready-made code that solves a specific problem.\nFramework - essentially a large library that solves a package of problems and offers its own solution approach.\n\nKey difference:\n• With a library, you call the code\n• With a framework, the framework calls your code (Inversion of Control)"
+  },
+  "data_types": {
+    "question": "What data types exist in Python?",
+    "answer": "A fundamental question that, if answered incorrectly, could end the interview. The basic concept assumes you at least know mutable and immutable types.\n\nImmutable types:\n• Numbers: int, float, bool\n• Strings: str\n• Tuples: tuple\n• Frozen sets: frozenset\n\nMutable types:\n• Lists: list\n• Dictionaries: dict\n• Sets: set\n• Custom classes (by default)"
+  },
+  "mutable_immutable": {
+    "question": "What is the difference between mutable and immutable data types?",
+    "answer": "Remember that variables in Python are not really variables, but just references. Talk about references, and if you're feeling confident, you can add information about hashability (instant + to karma).\n\nHashability:\nHashability is a property of an object that allows it to be used as a key in a dictionary or an element in a set. Hashable objects must be immutable so that their hash value remains constant throughout the object's lifetime.\n\nExample:\n# Hashable object (tuple)\nmy_tuple = (1, 2, 3)\nprint(hash(my_tuple))  # Works\n\nSummary:\nA hash is a unique numerical value obtained as a result of processing data with a hash function. It is used for quick data access, integrity verification, and security assurance. Hashing plays an important role in programming, especially in data structures, cryptography, and security systems."
+  }
+}
